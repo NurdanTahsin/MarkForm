@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import type { DailyLog, FoodItem, MealCategory, UserGoal, UserStats } from '../types';
+import type { DailyLog, FoodItem, MealCategory, UserGoal, UserStats, WaterEntry } from '../types';
 import {
     calculateDailyCalorieDelta,
     calculateIntakeFromDays,
@@ -32,6 +32,9 @@ interface UserStoreState {
     removeCategoryEntirely: (date: string, categoryName: string) => void;
     addFoodToLibrary: (food: FoodItem) => void;
     deleteFromLibrary: (foodId: string) => void;
+    addWaterEntry: (date: string, amount: number) => void;
+    removeWaterEntry: (date: string, entryId: string) => void;
+    updateWaterEntry: (date: string, entryId: string, amount: number) => void;
     clearAll: () => void;
 }
 
@@ -53,7 +56,12 @@ function ensureLogShape(log: DailyLog): DailyLog {
         categories: log.categories ?? [],
         workoutDone: log.workoutDone ?? log.isSportDone ?? false,
         waterIntake: log.waterIntake ?? log.water ?? 0,
+        waterEntries: log.waterEntries ?? [],
     };
+}
+
+function sumWaterEntries(entries: WaterEntry[]): number {
+    return entries.reduce((s, e) => s + e.amount, 0);
 }
 
 function createMealCategory(name: string): MealCategory {
@@ -184,6 +192,44 @@ export const useUserStore = create<UserStoreState>()(
             deleteFromLibrary: (foodId) =>
                 set((state) => ({
                     personalFoods: state.personalFoods.filter((food) => food.id !== foodId),
+                })),
+            addWaterEntry: (date, amount) =>
+                set((state) => {
+                    const newEntry: WaterEntry = { id: `water-${Date.now()}`, amount };
+                    const idx = state.logs.findIndex((l) => l.date === date);
+                    if (idx === -1) {
+                        return {
+                            logs: [
+                                ...state.logs,
+                                { ...createEmptyLog(date), waterEntries: [newEntry], waterIntake: amount },
+                            ],
+                        };
+                    }
+                    const next = [...state.logs];
+                    const shaped = ensureLogShape(next[idx]);
+                    const entries = [...(shaped.waterEntries ?? []), newEntry];
+                    next[idx] = { ...shaped, waterEntries: entries, waterIntake: sumWaterEntries(entries) };
+                    return { logs: next };
+                }),
+            removeWaterEntry: (date, entryId) =>
+                set((state) => ({
+                    logs: state.logs.map((log) => {
+                        if (log.date !== date) return log;
+                        const shaped = ensureLogShape(log);
+                        const entries = shaped.waterEntries!.filter((e) => e.id !== entryId);
+                        return { ...shaped, waterEntries: entries, waterIntake: sumWaterEntries(entries) };
+                    }),
+                })),
+            updateWaterEntry: (date, entryId, amount) =>
+                set((state) => ({
+                    logs: state.logs.map((log) => {
+                        if (log.date !== date) return log;
+                        const shaped = ensureLogShape(log);
+                        const entries = shaped.waterEntries!.map((e) =>
+                            e.id === entryId ? { ...e, amount } : e
+                        );
+                        return { ...shaped, waterEntries: entries, waterIntake: sumWaterEntries(entries) };
+                    }),
                 })),
             clearAll: () => set({ stats: null, goal: null, logs: [], personalFoods: [] }),
         }),

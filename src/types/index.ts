@@ -35,11 +35,17 @@ export interface MealCategory {
   items: FoodItem[];
 }
 
+export interface WaterEntry {
+  id: string;
+  amount: number; // ml
+}
+
 export interface DailyLog {
   date: string;
   categories: MealCategory[];
   workoutDone: boolean;
   waterIntake: number;
+  waterEntries?: WaterEntry[];
   // Legacy alanlar: mevcut ekranlari kirilmadan gecis yapabilmek icin tutuldu.
   calories?: number;
   isSportDone?: boolean;
