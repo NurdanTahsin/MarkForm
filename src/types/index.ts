@@ -17,10 +17,32 @@ export interface UserGoal {
   weeklySportQuota: number;
 }
 
+export type FoodUnit = 'porsiyon' | 'gram';
+
+export interface FoodItem {
+  id: string;
+  name: string;
+  kcal: number;
+  protein: number;
+  carb: number;
+  fat: number;
+  unit: FoodUnit;
+}
+
+export interface MealCategory {
+  id: string;
+  name: string;
+  items: FoodItem[];
+}
+
 export interface DailyLog {
   date: string;
-  calories: number;
-  isSportDone: boolean;
+  categories: MealCategory[];
+  workoutDone: boolean;
+  waterIntake: number;
+  // Legacy alanlar: mevcut ekranlari kirilmadan gecis yapabilmek icin tutuldu.
+  calories?: number;
+  isSportDone?: boolean;
   water?: number;
   sleep?: number;
 }

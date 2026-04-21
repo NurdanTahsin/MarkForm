@@ -2,7 +2,7 @@ import '../index.css';
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { useDailyCalorieTarget, useUserStore } from '../store/useUserStore';
+import { useDailyCalorieTarget, useUserStore } from '../store/useUserStore.ts';
 import type { UserGoal, UserStats } from '../types';
 import {
     calculateBMR,
