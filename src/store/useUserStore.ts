@@ -6,8 +6,17 @@ import {
     calculateDailyCalorieDelta,
     calculateIntakeFromDays,
     calculateMinDaysForSafety,
+    calculateTDEE,
     validateIntake,
 } from '../utils/healthEngine';
+import { THEME_PRESETS, type ThemeKey } from '../constants/themes';
+import { todayString } from '../constants/dashboardConstants';
+
+export interface WeightEntry {
+    id: string;
+    date: string;
+    weight: number;
+}
 
 interface DailyCalorieTarget {
     intake: number;
@@ -22,9 +31,19 @@ interface UserStoreState {
     logs: DailyLog[];
     personalFoods: FoodItem[];
     language: 'tr' | 'en';
+    email: string;
+    theme: ThemeKey;
+    waterTarget: number;
+    weightLog: WeightEntry[];
     setStats: (stats: UserStats) => void;
     setGoal: (goal: UserGoal) => void;
     setLanguage: (language: 'tr' | 'en') => void;
+    setEmail: (email: string) => void;
+    setTheme: (theme: ThemeKey) => void;
+    setWaterTarget: (ml: number) => void;
+    addWeightEntry: (weight: number, date?: string) => void;
+    updateWeightEntry: (id: string, weight: number, date: string) => void;
+    removeWeightEntry: (id: string) => void;
     addLog: (log: DailyLog) => void;
     updateLog: (date: string, updates: Partial<DailyLog>) => void;
     addFoodToMeal: (date: string, categoryName: string, food: FoodItem) => void;
@@ -32,6 +51,7 @@ interface UserStoreState {
     removeCategoryEntirely: (date: string, categoryName: string) => void;
     addFoodToLibrary: (food: FoodItem) => void;
     deleteFromLibrary: (foodId: string) => void;
+    removeLog: (date: string) => void;
     addWaterEntry: (date: string, amount: number) => void;
     removeWaterEntry: (date: string, entryId: string) => void;
     updateWaterEntry: (date: string, entryId: string, amount: number) => void;
@@ -80,9 +100,42 @@ export const useUserStore = create<UserStoreState>()(
             logs: [],
             personalFoods: [],
             language: 'tr',
+            email: '',
+            theme: 'light',
+            waterTarget: 2000,
+            weightLog: [],
             setStats: (stats) => set({ stats }),
             setGoal: (goal) => set({ goal }),
             setLanguage: (language) => set({ language }),
+            setEmail: (email) => set({ email }),
+            setTheme: (theme) => set({ theme }),
+            setWaterTarget: (waterTarget) => set({ waterTarget }),
+            addWeightEntry: (weight, date) =>
+                set((state) => {
+                    const entryDate = date || todayString();
+                    const newEntry: WeightEntry = { id: `weight-${Date.now()}`, date: entryDate, weight };
+                    const nextLog = [...state.weightLog, newEntry].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                    const latestEntry = nextLog[nextLog.length - 1];
+                    const nextStats = state.stats ? { ...state.stats, currentWeight: latestEntry.weight } : null;
+                    if (nextStats) nextStats.TDEE = calculateTDEE(nextStats);
+                    return { weightLog: nextLog, stats: nextStats };
+                }),
+            updateWeightEntry: (id, weight, date) =>
+                set((state) => {
+                    const nextLog = state.weightLog.map(e => e.id === id ? { ...e, weight, date } : e).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                    const latestEntry = nextLog[nextLog.length - 1];
+                    const nextStats = state.stats && latestEntry ? { ...state.stats, currentWeight: latestEntry.weight } : state.stats;
+                    if (nextStats) nextStats.TDEE = calculateTDEE(nextStats);
+                    return { weightLog: nextLog, stats: nextStats };
+                }),
+            removeWeightEntry: (id) =>
+                set((state) => {
+                    const nextLog = state.weightLog.filter(e => e.id !== id);
+                    const latestEntry = nextLog[nextLog.length - 1];
+                    const nextStats = state.stats && latestEntry ? { ...state.stats, currentWeight: latestEntry.weight } : state.stats;
+                    if (nextStats) nextStats.TDEE = calculateTDEE(nextStats);
+                    return { weightLog: nextLog, stats: nextStats };
+                }),
             addLog: (log) => set((state) => ({ logs: [...state.logs, log] })),
             updateLog: (date, updates) =>
                 set((state) => ({
@@ -97,14 +150,10 @@ export const useUserStore = create<UserStoreState>()(
                     if (existingIndex === -1) {
                         const newCategory = createMealCategory(categoryName);
                         newCategory.items.push(food);
-
                         return {
                             logs: [
                                 ...state.logs,
-                                {
-                                    ...createEmptyLog(date),
-                                    categories: [newCategory],
-                                },
+                                { ...createEmptyLog(date), categories: [newCategory] },
                             ],
                         };
                     }
@@ -116,7 +165,6 @@ export const useUserStore = create<UserStoreState>()(
                     );
 
                     let nextCategories: MealCategory[];
-
                     if (categoryIndex === -1) {
                         const newCategory = createMealCategory(categoryName);
                         newCategory.items.push(food);
@@ -129,29 +177,19 @@ export const useUserStore = create<UserStoreState>()(
                         );
                     }
 
-                    nextLogs[existingIndex] = {
-                        ...activeLog,
-                        categories: nextCategories,
-                    };
-
+                    nextLogs[existingIndex] = { ...activeLog, categories: nextCategories };
                     return { logs: nextLogs };
                 }),
             removeFoodFromMeal: (date, categoryName, foodId) =>
                 set((state) => ({
                     logs: state.logs.map((log) => {
-                        if (log.date !== date) {
-                            return log;
-                        }
-
+                        if (log.date !== date) return log;
                         const shapedLog = ensureLogShape(log);
                         return {
                             ...shapedLog,
                             categories: shapedLog.categories.map((category) =>
                                 category.name === categoryName
-                                    ? {
-                                        ...category,
-                                        items: category.items.filter((item) => item.id !== foodId),
-                                    }
+                                    ? { ...category, items: category.items.filter((item) => item.id !== foodId) }
                                     : category
                             ),
                         };
@@ -160,10 +198,7 @@ export const useUserStore = create<UserStoreState>()(
             removeCategoryEntirely: (date, categoryName) =>
                 set((state) => ({
                     logs: state.logs.map((log) => {
-                        if (log.date !== date) {
-                            return log;
-                        }
-
+                        if (log.date !== date) return log;
                         const shapedLog = ensureLogShape(log);
                         return {
                             ...shapedLog,
@@ -176,7 +211,6 @@ export const useUserStore = create<UserStoreState>()(
             addFoodToLibrary: (food) =>
                 set((state) => {
                     const exists = state.personalFoods.some((item) => item.id === food.id);
-
                     if (exists) {
                         return {
                             personalFoods: state.personalFoods.map((item) =>
@@ -184,14 +218,15 @@ export const useUserStore = create<UserStoreState>()(
                             ),
                         };
                     }
-
-                    return {
-                        personalFoods: [...state.personalFoods, food],
-                    };
+                    return { personalFoods: [...state.personalFoods, food] };
                 }),
             deleteFromLibrary: (foodId) =>
                 set((state) => ({
                     personalFoods: state.personalFoods.filter((food) => food.id !== foodId),
+                })),
+            removeLog: (date) =>
+                set((state) => ({
+                    logs: state.logs.filter((log) => log.date !== date),
                 })),
             addWaterEntry: (date, amount) =>
                 set((state) => {
@@ -231,13 +266,22 @@ export const useUserStore = create<UserStoreState>()(
                         return { ...shaped, waterEntries: entries, waterIntake: sumWaterEntries(entries) };
                     }),
                 })),
-            clearAll: () => set({ stats: null, goal: null, logs: [], personalFoods: [] }),
+            clearAll: () =>
+                set({ stats: null, goal: null, logs: [], personalFoods: [], weightLog: [], email: '' }),
         }),
-        {
-            name: 'vitalstrack-user-store',
-        }
+        { name: 'vitalstrack-user-store' }
     )
 );
+
+// ── Hooks ──────────────────────────────────────────────────────────────────
+
+export function useActiveTheme() {
+    const theme = useUserStore((s) => s.theme);
+    if (theme && theme in THEME_PRESETS) {
+        return THEME_PRESETS[theme as ThemeKey];
+    }
+    return THEME_PRESETS.light;
+}
 
 export function useDailyCalorieTarget(
     draftStats?: UserStats | null,
@@ -249,9 +293,7 @@ export function useDailyCalorieTarget(
     const activeStats = draftStats ?? storedStats;
     const activeGoal = draftGoal ?? storedGoal;
 
-    if (!activeStats || !activeGoal) {
-        return null;
-    }
+    if (!activeStats || !activeGoal) return null;
 
     try {
         const minSafeDays = calculateMinDaysForSafety(activeStats, activeGoal);
@@ -259,13 +301,7 @@ export function useDailyCalorieTarget(
         const delta = calculateDailyCalorieDelta(activeStats, activeGoal);
         const requiredDailyCalories = activeStats.TDEE - delta;
         const warning = validateIntake(activeStats, intake);
-
-        return {
-            intake,
-            minSafeDays,
-            warning,
-            requiredDailyCalories,
-        };
+        return { intake, minSafeDays, warning, requiredDailyCalories };
     } catch {
         return null;
     }

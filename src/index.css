@@ -1,3 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
-button, [role="button"], a { cursor: pointer; }
+body {
+    font-family: 'Outfit', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #0A7C6E;
+}
+
+button,
+[role="button"],
+a {
+    cursor: pointer;
+}
+
+.macro-bar {
+    width: 100%;
+    height: 10px;
+    display: block;
+    overflow: hidden;
+    border: 0;
+    border-radius: 9999px;
+    background-color: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    --macro-fill: #6366f1;
+    /* default indigo */
+}
+
+.macro-track-light {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.macro-track-dark {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.macro-bar::-webkit-progress-bar {
+    border-radius: 9999px;
+}
+
+.macro-track-light::-webkit-progress-bar {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.macro-track-dark::-webkit-progress-bar {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.macro-bar::-webkit-progress-value {
+    border-radius: 9999px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: var(--macro-fill);
+}
+
+.macro-bar::-moz-progress-bar {
+    border-radius: 9999px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: var(--macro-fill);
+}
+
+/* Updated Colors for Fresh & Earthy Light Theme */
+.macro-fill-emerald {
+    --macro-fill: #4A6B31; /* Deep Grass Green */
+    box-shadow: none;
+}
+
+.macro-fill-emerald-dark {
+    --macro-fill: #4A6B31;
+}
+
+.macro-fill-amber {
+    --macro-fill: #F08A1D; /* Vibrant Orange */
+    box-shadow: none;
+}
+
+.macro-fill-amber-dark {
+    --macro-fill: #F08A1D;
+}
+
+.macro-fill-sky {
+    --macro-fill: #E63946; /* Warning Red */
+    box-shadow: none;
+}
+
+.macro-fill-sky-dark {
+    --macro-fill: #E63946;
+}
+
+/* Micro-animations & Transitions for Premium Vibe */
+@layer utilities {
+    .animate-in {
+        animation: animate-in 0.3s ease-out;
+    }
+
+    .animate-fade-up {
+        animation: fade-up 0.4s ease-out forwards;
+    }
+
+    .animate-pulse-slow {
+        animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+}
+
+@keyframes animate-in {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Global button and card hover smoothness */
+button,
+a,
+.card-transition {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}

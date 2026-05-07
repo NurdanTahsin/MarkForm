@@ -9,6 +9,7 @@ export interface UserStats {
   cycleTrackingEnabled?: boolean;
   lastPeriodStartDate?: string;
   averageCycleLength?: number;
+  periodLength?: number;
 }
 
 export interface UserGoal {
@@ -46,9 +47,10 @@ export interface DailyLog {
   workoutDone: boolean;
   waterIntake: number;
   waterEntries?: WaterEntry[];
+  workoutName?: string;
+  workoutDuration?: number; // dakika
   // Legacy alanlar: mevcut ekranlari kirilmadan gecis yapabilmek icin tutuldu.
   calories?: number;
   isSportDone?: boolean;
   water?: number;
-  sleep?: number;
 }

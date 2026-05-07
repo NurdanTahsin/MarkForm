@@ -1,0 +1,44 @@
+import { useState } from 'react';
+import { useActiveTheme, useUserStore } from '../../../store/useUserStore';
+import type { ActiveSection } from '../../../constants/dashboardConstants';
+import { FoodSection } from './FoodSection';
+import { WaterSection } from './WaterSection';
+import { ExerciseSection } from './ExerciseSection';
+
+export function ActionCard() {
+    const T = useActiveTheme();
+    const themeKey = useUserStore((s) => s.theme);
+    const language = useUserStore((s) => s.language);
+    const t = (tr: string, en: string) => (language === 'tr' ? tr : en);
+
+    const [activeSection, setActiveSection] = useState<ActiveSection>('food');
+
+    return (
+        <section className={`rounded-3xl border p-3 sm:p-4 ${T.cardBg} ${T.cardBorder} shadow-sm`}>
+            {/* Section tabs */}
+            <div className="grid grid-cols-3 gap-2 mb-3">
+                {([
+                    { key: 'food', label: t('Yemek Ekle', 'Add Food') },
+                    { key: 'water', label: t('Su Ekle', 'Add Water') },
+                    { key: 'exercise', label: t('Egzersiz Ekle', 'Add Exercise') },
+                ] as { key: ActiveSection; label: string }[]).map(({ key, label }) => (
+                    <button
+                        key={key}
+                        type="button"
+                        onClick={() => setActiveSection(key)}
+                        className={`rounded-full px-3 py-2 text-sm font-semibold transition ${activeSection === key ? T.accentBtn : `border ${T.cardBorder} ${T.title} ${T.mutedSurface}`}`}
+                    >
+                        {label}
+                    </button>
+                ))}
+            </div>
+
+            {/* Content area — min-h keeps card stable between tabs */}
+            <div className="min-h-64">
+                {activeSection === 'food' && <FoodSection themeKey={themeKey} />}
+                {activeSection === 'water' && <WaterSection />}
+                {activeSection === 'exercise' && <ExerciseSection />}
+            </div>
+        </section>
+    );
+}
