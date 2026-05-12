@@ -12,10 +12,10 @@ interface Props {
 function CalorieBarChart({
     logs,
     targetKcal,
-}: {
+}: Readonly<{
     logs: Past30LogEntry[];
     targetKcal: number;
-}) {
+}>) {
     const isDark = false; // Fresh Earthy theme is a light theme
     const ordered = [...logs].reverse(); // oldest → newest (left → right)
 
@@ -36,40 +36,58 @@ function CalorieBarChart({
 
     const targetPct = Math.min(100, Math.max(0, ((targetKcal - dataMin) / range) * 100));
 
+    const barGap = 1;
+    const barCount = ordered.length || 1;
+    const barWidth = (100 - barGap * (barCount - 1)) / barCount;
+
     return (
         <div className="relative">
-            {/* Target line */}
-            <div
-                className={`absolute left-0 right-0 border-t border-dashed ${isDark ? 'border-indigo-500/50' : 'border-indigo-400/60'} z-10`}
-                style={{ bottom: `${targetPct}%`, height: 0 }}
-            />
+            <svg viewBox="0 0 100 100" className="h-24 w-full">
+                <line
+                    x1={0}
+                    x2={100}
+                    y1={100 - targetPct}
+                    y2={100 - targetPct}
+                    className={`${isDark ? 'stroke-indigo-500/50' : 'stroke-indigo-400/60'}`}
+                    strokeDasharray="4 3"
+                    strokeWidth={1}
+                    vectorEffect="non-scaling-stroke"
+                />
 
-            {/* Bars */}
-            <div className="flex items-end gap-[2px] h-24">
-                {ordered.map((entry) => {
+                {ordered.map((entry, index) => {
+                    const x = index * (barWidth + barGap);
                     if (!entry.hasData) {
+                        const emptyHeight = 3;
                         return (
-                            <div key={entry.log.date} className="flex-1 min-w-0 h-full flex items-end">
-                                <div className={`w-full rounded-t-[2px] ${isDark ? 'bg-white/5' : 'bg-slate-100'}`} style={{ height: '3px' }} />
-                            </div>
+                            <rect
+                                key={entry.log.date}
+                                x={x}
+                                y={100 - emptyHeight}
+                                width={barWidth}
+                                height={emptyHeight}
+                                rx={1}
+                                className={isDark ? 'fill-white/5' : 'fill-slate-100'}
+                            />
                         );
                     }
+
                     const pct = Math.min(100, Math.max(4, ((entry.totals.kcal - dataMin) / range) * 100));
                     const onTarget = entry.totals.kcal >= targetKcal * 0.85;
                     return (
-                        <div
+                        <rect
                             key={entry.log.date}
-                            className="flex-1 min-w-0 h-full flex items-end"
-                            title={`${entry.log.date}: ${Math.round(entry.totals.kcal)} kcal`}
+                            x={x}
+                            y={100 - pct}
+                            width={barWidth}
+                            height={pct}
+                            rx={1}
+                            className={onTarget ? 'fill-indigo-500' : 'fill-indigo-300'}
                         >
-                            <div
-                                className={`w-full rounded-t-[2px] transition-all ${onTarget ? 'bg-indigo-500' : 'bg-indigo-300'}`}
-                                style={{ height: `${pct}%` }}
-                            />
-                        </div>
+                            <title>{`${entry.log.date}: ${Math.round(entry.totals.kcal)} kcal`}</title>
+                        </rect>
                     );
                 })}
-            </div>
+            </svg>
 
             {/* Labels */}
             <div className="flex justify-between mt-1">
@@ -80,7 +98,7 @@ function CalorieBarChart({
     );
 }
 
-export function Past30Tab({ past30Logs, targetKcal }: Props) {
+export function Past30Tab({ past30Logs, targetKcal }: Readonly<Props>) {
     const T = useActiveTheme();
     const t = useTranslate();
     const language = useUserStore((s) => s.language);

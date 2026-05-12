@@ -27,11 +27,15 @@ export function AddEntryModal({ date, dateLabel, onClose }: Props) {
     ];
 
     return createPortal(
-        <div className="fixed inset-0 z-[300] flex items-end sm:items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+        <div className="fixed inset-0 z-300 flex items-end sm:items-center justify-center p-4">
+            <button
+                type="button"
+                aria-label={t('Kapat', 'Close')}
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                onClick={onClose}
+            />
 
-            <div className={`relative w-full max-w-md rounded-3xl ${T.cardBg} border ${T.cardBorder} shadow-2xl z-10 overflow-hidden`}
-                style={{ maxHeight: '90vh' }}>
+            <div className={`relative w-full max-w-md rounded-3xl ${T.cardBg} border ${T.cardBorder} shadow-2xl z-10 overflow-hidden max-h-[90vh]`}>
 
                 {/* Header */}
                 <div className={`flex items-center justify-between px-5 py-4 border-b ${T.cardBorder}`}>
@@ -42,6 +46,7 @@ export function AddEntryModal({ date, dateLabel, onClose }: Props) {
                     <button
                         type="button"
                         onClick={onClose}
+                        aria-label={t('Kapat', 'Close')}
                         className={`grid h-8 w-8 place-items-center rounded-full border ${T.cardBorder} ${T.mutedSurface} ${T.title} transition`}
                     >
                         <X className="h-4 w-4" />
@@ -55,11 +60,10 @@ export function AddEntryModal({ date, dateLabel, onClose }: Props) {
                             key={key}
                             type="button"
                             onClick={() => setActiveTab(key)}
-                            className={`flex items-center gap-1.5 px-3 py-3 text-sm font-semibold transition border-b-2 -mb-px ${
-                                activeTab === key
+                            className={`flex items-center gap-1.5 px-3 py-3 text-sm font-semibold transition border-b-2 -mb-px ${activeTab === key
                                     ? `${T.accent} border-current`
                                     : `${T.subtitle} border-transparent`
-                            }`}
+                                }`}
                         >
                             <Icon className="h-4 w-4" />
                             {label}
@@ -68,7 +72,7 @@ export function AddEntryModal({ date, dateLabel, onClose }: Props) {
                 </div>
 
                 {/* Content */}
-                <div className="p-5 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 130px)' }}>
+                <div className="p-5 overflow-y-auto max-h-[calc(90vh-130px)]">
                     {activeTab === 'food' && (
                         <FoodSection targetDate={date} />
                     )}

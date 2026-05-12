@@ -39,8 +39,13 @@ function EditModal({
 }) {
     const T = useActiveTheme();
     return createPortal(
-        <div className="fixed inset-0 z-[400] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+        <div className="fixed inset-0 z-400 flex items-center justify-center p-4">
+            <button
+                type="button"
+                aria-label="Kapat"
+                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                onClick={onClose}
+            />
             <div className={`relative w-full max-w-md rounded-3xl border shadow-2xl z-10 overflow-hidden ${T.cardBg} ${T.cardBorder}`}>
                 <div className={`flex items-center justify-between px-5 py-4 border-b ${T.cardBorder}`}>
                     <div>
@@ -48,11 +53,12 @@ function EditModal({
                         <p className={`text-xs mt-0.5 ${T.subtitle}`}>{subtitle}</p>
                     </div>
                     <button type="button" onClick={onClose}
+                        aria-label="Kapat"
                         className={`grid h-8 w-8 place-items-center rounded-full border ${T.cardBorder} ${T.mutedSurface} ${T.title}`}>
                         <X className="h-4 w-4" />
                     </button>
                 </div>
-                <div className="p-5 overflow-y-auto" style={{ maxHeight: 'calc(80vh - 80px)' }}>
+                <div className="p-5 overflow-y-auto max-h-[calc(80vh-80px)]">
                     {children}
                 </div>
             </div>
@@ -64,7 +70,7 @@ function EditModal({
 /* ─────────────────────────────────────────────────────────
    Main Card
 ───────────────────────────────────────────────────────── */
-export function HistoryDayCard({ entry, targetKcal }: Props) {
+export function HistoryDayCard({ entry, targetKcal }: Readonly<Props>) {
     const T = useActiveTheme();
     const language = useUserStore((s) => s.language);
     const removeFoodFromMeal = useUserStore((s) => s.removeFoodFromMeal);
@@ -102,7 +108,7 @@ export function HistoryDayCard({ entry, targetKcal }: Props) {
     };
 
     const handleDeleteLog = () => {
-        if (!window.confirm(t('Bu günün kayıtlarını silmek istediğinize emin misiniz?', 'Are you sure you want to delete this day?'))) return;
+        if (!globalThis.confirm(t('Bu günün kayıtlarını silmek istediğinize emin misiniz?', 'Are you sure you want to delete this day?'))) return;
         removeLog(log.date);
         addToast(t('Günlük kayıt silindi.', 'Daily record deleted.'), 'error');
     };
@@ -116,7 +122,7 @@ export function HistoryDayCard({ entry, targetKcal }: Props) {
     };
 
     const handleDeleteExercise = () => {
-        if (!window.confirm(t('Bu egzersizi silmek istediğinize emin misiniz?', 'Are you sure you want to delete this exercise?'))) return;
+        if (!globalThis.confirm(t('Bu egzersizi silmek istediğinize emin misiniz?', 'Are you sure you want to delete this exercise?'))) return;
         updateLog(log.date, { workoutDone: false, workoutName: undefined, workoutDuration: 0 });
         addToast(t('Egzersiz silindi.', 'Exercise deleted.'), 'error');
     };
@@ -171,10 +177,11 @@ export function HistoryDayCard({ entry, targetKcal }: Props) {
                 {hasData ? (
                     <div className={`px-4 py-2.5 border-t ${T.cardBorder}`}>
                         {/* Kcal bar */}
-                        <div className={`h-1.5 rounded-full overflow-hidden mb-2.5 ${isDark ? 'bg-white/10' : 'bg-slate-100'}`}>
-                            <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"
-                                style={{ width: `${kcalPct}%` }} />
-                        </div>
+                        <progress
+                            value={kcalPct}
+                            max={100}
+                            className={`kcal-bar ${isDark ? 'kcal-bar-dark' : 'kcal-bar-light'} mb-2.5`}
+                        />
 
                         {/* Chips grid */}
                         <div className="flex gap-1.5 flex-wrap">
@@ -253,7 +260,7 @@ export function HistoryDayCard({ entry, targetKcal }: Props) {
                                                         <span className={`text-[10px] font-medium ${T.subtitle}`}>{formatNutrition(item)}</span>
                                                         <button type="button" aria-label={t('Sil', 'Delete')}
                                                             onClick={() => {
-                                                                if (!window.confirm(t('Bu besini silmek istediğinize emin misiniz?', 'Are you sure you want to delete this food?'))) return;
+                                                                if (!globalThis.confirm(t('Bu besini silmek istediğinize emin misiniz?', 'Are you sure you want to delete this food?'))) return;
                                                                 removeFoodFromMeal(log.date, meal.storeLabel, item.id);
                                                                 addToast(t('Besin silindi.', 'Food deleted.'), 'error');
                                                             }}
@@ -294,6 +301,7 @@ export function HistoryDayCard({ entry, targetKcal }: Props) {
                                                 {editingWaterId === we.id ? (
                                                     <>
                                                         <input type="number" value={editWaterValue}
+                                                            aria-label={t('Su miktarı (ml)', 'Water amount (ml)')}
                                                             onChange={(e) => setEditWaterValue(e.target.value)}
                                                             className={`w-20 rounded-lg border px-2 py-1 text-xs outline-none ${T.inputBg} ${T.inputBorder} ${T.inputText}`}
                                                             autoFocus />
@@ -303,10 +311,13 @@ export function HistoryDayCard({ entry, targetKcal }: Props) {
                                                             const amt = toNumber(editWaterValue);
                                                             if (amt > 0) { updateWaterEntry(log.date, we.id, amt); addToast(t('Su güncellendi.', 'Water updated.')); }
                                                             setEditingWaterId(null);
-                                                        }} className={`grid h-6 w-6 place-items-center rounded-full ${T.accentSoft} ${T.accent}`}>
+                                                        }}
+                                                            aria-label={t('Su kaydını kaydet', 'Save water entry')}
+                                                            className={`grid h-6 w-6 place-items-center rounded-full ${T.accentSoft} ${T.accent}`}>
                                                             <Check className="h-3 w-3" />
                                                         </button>
                                                         <button type="button" onClick={() => setEditingWaterId(null)}
+                                                            aria-label={t('İptal', 'Cancel')}
                                                             className={`grid h-6 w-6 place-items-center rounded-full ${T.mutedSurface} ${T.subtitle}`}>
                                                             <X className="h-3 w-3" />
                                                         </button>
@@ -315,14 +326,16 @@ export function HistoryDayCard({ entry, targetKcal }: Props) {
                                                     <>
                                                         <span className={`flex-1 text-xs font-semibold ${T.title}`}>{formatWater(we.amount)}</span>
                                                         <button type="button" onClick={() => { setEditingWaterId(we.id); setEditWaterValue(String(we.amount)); }}
+                                                            aria-label={t('Su kaydını düzenle', 'Edit water entry')}
                                                             className={`grid h-6 w-6 place-items-center rounded-full ${T.mutedSurface} ${T.subtitle}`}>
                                                             <Pencil className="h-3 w-3" />
                                                         </button>
                                                         <button type="button" onClick={() => {
-                                                            if (!window.confirm(t('Bu su kaydını silmek istediğinize emin misiniz?', 'Are you sure you want to delete this water record?'))) return;
+                                                            if (!globalThis.confirm(t('Bu su kaydını silmek istediğinize emin misiniz?', 'Are you sure you want to delete this water record?'))) return;
                                                             removeWaterEntry(log.date, we.id);
                                                             addToast(t('Su silindi.', 'Water deleted.'), 'error');
                                                         }}
+                                                            aria-label={t('Su kaydını sil', 'Delete water entry')}
                                                             className="grid h-6 w-6 place-items-center rounded-full bg-rose-500/10 text-rose-500 transition hover:bg-rose-500/20 hover:scale-105 active:scale-95">
                                                             <Trash2 className="h-3.5 w-3.5" />
                                                         </button>
@@ -356,17 +369,23 @@ export function HistoryDayCard({ entry, targetKcal }: Props) {
                                     <div className={`border-t ${T.cardBorder}`}>
                                         {editingExercise ? (
                                             <div className={`flex items-center gap-2 px-4 py-3 ${T.mutedSurface}`}>
-                                                <input type="text" value={editExName} onChange={(e) => setEditExName(e.target.value)}
+                                                <input type="text" value={editExName}
+                                                    aria-label={t('Egzersiz adı', 'Exercise name')}
+                                                    onChange={(e) => setEditExName(e.target.value)}
                                                     placeholder={t('Egzersiz adı', 'Exercise name')}
                                                     className={`flex-1 min-w-0 rounded-lg border px-2 py-1.5 text-xs outline-none ${T.inputBg} ${T.inputBorder} ${T.inputText}`} autoFocus />
-                                                <input type="number" value={editExDuration} onChange={(e) => setEditExDuration(e.target.value)}
+                                                <input type="number" value={editExDuration}
+                                                    aria-label={t('Süre (dakika)', 'Duration (minutes)')}
+                                                    onChange={(e) => setEditExDuration(e.target.value)}
                                                     placeholder="dk"
                                                     className={`w-14 rounded-lg border px-2 py-1.5 text-xs outline-none ${T.inputBg} ${T.inputBorder} ${T.inputText}`} />
                                                 <button type="button" onClick={handleSaveExercise}
+                                                    aria-label={t('Egzersizi kaydet', 'Save exercise')}
                                                     className={`grid h-7 w-7 shrink-0 place-items-center rounded-full ${T.accentSoft} ${T.accent}`}>
                                                     <Check className="h-4 w-4" />
                                                 </button>
                                                 <button type="button" onClick={() => setEditingExercise(false)}
+                                                    aria-label={t('İptal', 'Cancel')}
                                                     className={`grid h-7 w-7 shrink-0 place-items-center rounded-full ${T.mutedSurface} ${T.subtitle}`}>
                                                     <X className="h-4 w-4" />
                                                 </button>
@@ -378,10 +397,12 @@ export function HistoryDayCard({ entry, targetKcal }: Props) {
                                                 {workoutDuration > 0 && <span className={`text-[11px] font-semibold ${T.subtitle}`}>{workoutDuration} dk</span>}
                                                 <button type="button"
                                                     onClick={() => { setEditExName(workoutName ?? ''); setEditExDuration(String(workoutDuration)); setEditingExercise(true); }}
+                                                    aria-label={t('Egzersizi düzenle', 'Edit exercise')}
                                                     className={`grid h-6 w-6 place-items-center rounded-full ${T.mutedSurface} ${T.subtitle}`}>
                                                     <Pencil className="h-3 w-3" />
                                                 </button>
                                                 <button type="button" onClick={handleDeleteExercise}
+                                                    aria-label={t('Egzersizi sil', 'Delete exercise')}
                                                     className="grid h-6 w-6 place-items-center rounded-full bg-rose-500/10 text-rose-500 transition hover:bg-rose-500/20 hover:scale-105 active:scale-95">
                                                     <Trash2 className="h-3.5 w-3.5" />
                                                 </button>

@@ -54,7 +54,7 @@ const PHASE_META = {
 
 type PhaseName = keyof typeof PHASE_META;
 
-export function CycleCalendar({ theme: T, lastPeriodDate, cycleLength, periodLength, language }: Props) {
+export function CycleCalendar({ theme: T, lastPeriodDate, cycleLength, periodLength, language }: Readonly<Props>) {
     const [open, setOpen] = useState(false);
     const [monthOffset, setMonthOffset] = useState(0); // 0 = current month
     const isDark = T.title === 'text-slate-50';
@@ -66,7 +66,7 @@ export function CycleCalendar({ theme: T, lastPeriodDate, cycleLength, periodLen
     const periodStart = useMemo(() => {
         if (!lastPeriodDate) return null;
         const d = new Date(lastPeriodDate + 'T00:00:00');
-        if (isNaN(d.getTime())) return null;
+        if (Number.isNaN(d.getTime())) return null;
         return d;
     }, [lastPeriodDate]);
 
@@ -129,9 +129,12 @@ export function CycleCalendar({ theme: T, lastPeriodDate, cycleLength, periodLen
                     <div className="flex flex-wrap gap-2">
                         {legend.map(({ key, label }) => {
                             const m = PHASE_META[key];
+                            const legendTone = isDark
+                                ? `${m.darkBg} ${m.darkBorder} ${m.darkText}`
+                                : `${m.bg} ${m.border} ${m.text}`;
                             return (
                                 <span key={key}
-                                    className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold border ${isDark ? `${m.darkBg} ${m.darkBorder} ${m.darkText}` : `${m.bg} ${m.border} ${m.text}`}`}>
+                                    className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold border ${legendTone}`}>
                                     <span className={`h-2 w-2 rounded-full ${isDark ? m.darkDot : m.dot}`} />
                                     {label}
                                 </span>
@@ -142,11 +145,13 @@ export function CycleCalendar({ theme: T, lastPeriodDate, cycleLength, periodLen
                     {/* Month nav */}
                     <div className="flex items-center justify-between">
                         <button type="button" onClick={() => setMonthOffset((o) => o - 1)}
+                            aria-label={t('Önceki ay', 'Previous month')}
                             className={`grid h-7 w-7 place-items-center rounded-full ${T.mutedSurface} ${T.subtitle}`}>
                             <ChevronLeft className="h-4 w-4" />
                         </button>
                         <span className={`text-xs font-semibold capitalize ${T.title}`}>{monthName}</span>
                         <button type="button" onClick={() => setMonthOffset((o) => o + 1)}
+                            aria-label={t('Sonraki ay', 'Next month')}
                             className={`grid h-7 w-7 place-items-center rounded-full ${T.mutedSurface} ${T.subtitle}`}>
                             <ChevronRight className="h-4 w-4" />
                         </button>
@@ -162,8 +167,8 @@ export function CycleCalendar({ theme: T, lastPeriodDate, cycleLength, periodLen
                     {/* Days grid */}
                     <div className="grid grid-cols-7 gap-0.5">
                         {/* Empty cells for padding */}
-                        {Array.from({ length: days.startPad }).map((_, i) => (
-                            <div key={`pad-${i}`} />
+                        {weekdays.slice(0, days.startPad).map((day) => (
+                            <div key={`pad-${year}-${month}-${day}`} />
                         ))}
                         {/* Day cells */}
                         {Array.from({ length: days.count }).map((_, i) => {
@@ -173,16 +178,24 @@ export function CycleCalendar({ theme: T, lastPeriodDate, cycleLength, periodLen
                             const isToday = date.toDateString() === today.toDateString();
                             const meta = phase ? PHASE_META[phase] : null;
 
+                            const dayTone = (() => {
+                                if (!meta) return isDark ? 'text-slate-400' : 'text-slate-500';
+                                let phaseTone = '';
+                                if (phase !== 'menstrual') {
+                                    phaseTone = isDark ? 'opacity-80' : 'bg-opacity-50';
+                                }
+                                return isDark
+                                    ? `${meta.darkBg} ${meta.darkText} ${phaseTone}`
+                                    : `${meta.bg} ${meta.text} ${phaseTone}`;
+                            })();
+                            const todayRing = isToday ? 'ring-2 ring-indigo-500 ring-offset-1' : '';
+
                             return (
                                 <div key={dayNum}
                                     className={[
-                                        'flex flex-col items-center justify-center rounded-lg py-1 text-[11px] font-semibold min-h-[32px] relative',
-                                        meta
-                                            ? isDark
-                                                ? `${meta.darkBg} ${meta.darkText} ${phase !== 'menstrual' ? 'opacity-80' : ''}`
-                                                : `${meta.bg} ${meta.text} ${phase !== 'menstrual' ? 'bg-opacity-50' : ''}`
-                                            : isDark ? 'text-slate-400' : 'text-slate-500',
-                                        isToday ? 'ring-2 ring-indigo-500 ring-offset-1' : '',
+                                        'flex flex-col items-center justify-center rounded-lg py-1 text-[11px] font-semibold min-h-8 relative',
+                                        dayTone,
+                                        todayRing,
                                     ].join(' ')}
                                 >
                                     {dayNum}

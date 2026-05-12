@@ -6,7 +6,8 @@ body {
     font-family: 'Outfit', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #FAFAF8; /* Sage & Stone — sıcak krem zemin */
+    background-color: #FAFAF8;
+    /* Sage & Stone — sıcak krem zemin */
 }
 
 button,
@@ -26,7 +27,8 @@ a {
     background-color: transparent;
     -webkit-appearance: none;
     appearance: none;
-    --macro-fill: #0EA5E9; /* Ocean Breeze primary */
+    --macro-fill: #0EA5E9;
+    /* Ocean Breeze primary */
 }
 
 .macro-track-light {
@@ -61,10 +63,40 @@ a {
     background-color: var(--macro-fill);
 }
 
+/* Kcal Progress Bar */
+.kcal-bar {
+    width: 100%;
+    height: 6px;
+    border: 0;
+    border-radius: 9999px;
+    overflow: hidden;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.kcal-bar::-webkit-progress-value {
+    border-radius: 9999px;
+    background: linear-gradient(90deg, #6366F1, #8B5CF6);
+}
+
+.kcal-bar::-moz-progress-bar {
+    border-radius: 9999px;
+    background: linear-gradient(90deg, #6366F1, #8B5CF6);
+}
+
+.kcal-bar-light::-webkit-progress-bar {
+    background-color: #E2E8F0;
+}
+
+.kcal-bar-dark::-webkit-progress-bar {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
 /* Protein — Teal */
 .macro-fill-emerald {
     --macro-fill: #14B8A6;
 }
+
 .macro-fill-emerald-dark {
     --macro-fill: #2DD4BF;
 }
@@ -73,6 +105,7 @@ a {
 .macro-fill-amber {
     --macro-fill: #F59E0B;
 }
+
 .macro-fill-amber-dark {
     --macro-fill: #FBBF24;
 }
@@ -81,6 +114,7 @@ a {
 .macro-fill-sky {
     --macro-fill: #8B5CF6;
 }
+
 .macro-fill-sky-dark {
     --macro-fill: #93BDC9;
 }
@@ -109,6 +143,7 @@ a {
         opacity: 0;
         transform: scale(0.96);
     }
+
     to {
         opacity: 1;
         transform: scale(1);
@@ -120,6 +155,7 @@ a {
         opacity: 0;
         transform: translateY(12px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -131,6 +167,7 @@ a {
         opacity: 0;
         transform: translateX(100%);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -145,9 +182,11 @@ a,
 }
 
 /* ── Custom Scrollbar — Ocean Breeze ─────────────────────────────────────── */
-* {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(14, 165, 233, 0.18) transparent;
+@supports (scrollbar-color: auto) {
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(14, 165, 233, 0.18) transparent;
+    }
 }
 
 *::-webkit-scrollbar {

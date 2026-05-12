@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Edit2, X, Trash2 } from 'lucide-react';
 import type { FoodItem, FoodUnit } from '../../types';
@@ -44,9 +44,10 @@ export function FoodLibraryModal({ open, onClose, onSelect }: Props) {
         setEditingFood(null);
     };
 
-    useEffect(() => {
-        if (!open) resetForm();
-    }, [open]);
+    const handleClose = () => {
+        resetForm();
+        onClose();
+    };
 
     const handleSave = () => {
         const name = libName.trim();
@@ -86,7 +87,7 @@ export function FoodLibraryModal({ open, onClose, onSelect }: Props) {
     const handleSelect = (food: FoodItem) => {
         if (!onSelect) return;
         onSelect(food);
-        onClose();
+        handleClose();
     };
 
     const editingForm = (
@@ -156,14 +157,14 @@ export function FoodLibraryModal({ open, onClose, onSelect }: Props) {
         ) : (
             <div
                 className="fixed inset-0 z-[500] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 sm:p-6"
-                onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+                onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
             >
                 <div className={`w-full flex flex-col max-w-lg max-h-[80vh] rounded-3xl shadow-2xl overflow-hidden ${T.dropdownBg} ${T.cardBorder}`}>
                     <div className={`shrink-0 flex items-center justify-between border-b px-5 py-4 ${T.dropdownBg} ${T.cardBorder}`}>
                         <h2 className={`text-base font-bold ${T.title}`}>
                             {onSelect ? t('Besin Seç', 'Select Food') : t('Yemek Listesi', 'Food Library')}
                         </h2>
-                        <button type="button" aria-label={t('Kapat', 'Close')} onClick={onClose} className={`grid h-9 w-9 place-items-center rounded-full border ${T.cardBorder} ${T.title}`}>
+                        <button type="button" aria-label={t('Kapat', 'Close')} onClick={handleClose} className={`grid h-9 w-9 place-items-center rounded-full border ${T.cardBorder} ${T.title}`}>
                             <X className="h-4 w-4" strokeWidth={2.5} />
                         </button>
                     </div>
@@ -217,11 +218,10 @@ export function FoodLibraryModal({ open, onClose, onSelect }: Props) {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <p className={`text-sm font-semibold ${T.title} truncate`}>{food.name}</p>
-                                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                                    food.unit === 'gram' 
-                                                        ? 'bg-slate-200 text-slate-700' 
+                                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${food.unit === 'gram'
+                                                        ? 'bg-slate-200 text-slate-700'
                                                         : 'bg-slate-100 text-slate-600'
-                                                }`}>
+                                                    }`}>
                                                     {food.unit === 'gram' ? t('gram', 'gram') : t('porsiyon', 'portion')}
                                                 </span>
                                             </div>
@@ -250,10 +250,10 @@ export function FoodLibraryModal({ open, onClose, onSelect }: Props) {
                                                 <button
                                                     type="button"
                                                     aria-label={t('Sil', 'Delete')}
-                                                    onClick={(e) => { 
-                                                        e.stopPropagation(); 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
                                                         if (window.confirm(t('Bu besini kütüphaneden silmek istediğinize emin misiniz?', 'Are you sure you want to delete this food from library?'))) {
-                                                            handleDelete(food.id); 
+                                                            handleDelete(food.id);
                                                         }
                                                     }}
                                                     className="grid h-8 w-8 place-items-center rounded-full bg-rose-500/10 text-rose-500 transition hover:bg-rose-500/20 hover:scale-105 active:scale-95"

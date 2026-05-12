@@ -4,6 +4,8 @@ import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { useActiveTheme, useUserStore } from '../../../store/useUserStore';
 import { X, Camera, Zap, ZapOff } from 'lucide-react';
 
+type TorchConstraint = MediaTrackConstraintSet & { torch?: boolean };
+
 export function BarcodeScanner({ onScan, onClose }: { onScan: (b: string) => void, onClose: () => void }) {
     const T = useActiveTheme();
     const language = useUserStore((s) => s.language);
@@ -56,10 +58,10 @@ export function BarcodeScanner({ onScan, onClose }: { onScan: (b: string) => voi
         try {
             const newState = !isFlashOn;
             await qrInstance.current.applyVideoConstraints({
-                advanced: [{ torch: newState } as any]
+                advanced: [{ torch: newState } as TorchConstraint]
             });
             setIsFlashOn(newState);
-        } catch (e) {
+        } catch {
             console.log("Flash desteklenmiyor");
         }
     };

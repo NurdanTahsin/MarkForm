@@ -26,7 +26,7 @@ function getMealLabel(key: MealKey): string {
     return MEAL_META.find((m) => m.key === key)!.storeLabel;
 }
 
-export function FoodSection({ targetDate }: Props) {
+export function FoodSection({ targetDate }: Readonly<Props>) {
     const T = useActiveTheme();
     const language = useUserStore((s) => s.language);
     const storeAddFood = useUserStore((s) => s.addFoodToMeal);
@@ -162,7 +162,7 @@ export function FoodSection({ targetDate }: Props) {
         const data = await fetchFoodByBarcode(cleanBarcode);
         setIsScanning(false);
 
-        if (data && data.name) {
+        if (data?.name) {
             setSelectedFood({
                 id: `barcode-${cleanBarcode}`,
                 name: data.name,
@@ -333,23 +333,7 @@ export function FoodSection({ targetDate }: Props) {
                         </div>
                     )}
 
-                    {!selectedFood ? (
-                        <button
-                            type="button"
-                            onClick={() => setShowScanner(true)}
-                            disabled={isScanning}
-                            className={`w-full flex items-center justify-center gap-2 rounded-xl border px-3 py-8 text-sm transition ${T.cardBorder} ${T.mutedSurface} ${T.accent} hover:${T.accentSoft}`}
-                        >
-                            {isScanning ? (
-                                <span className="animate-spin h-6 w-6 border-2 border-current border-t-transparent rounded-full" />
-                            ) : (
-                                <>
-                                    <ScanLine className="h-6 w-6" />
-                                    <span>{t('Kamerayı Aç ve Barkod Okut', 'Open Camera & Scan')}</span>
-                                </>
-                            )}
-                        </button>
-                    ) : (
+                    {selectedFood ? (
                         <>
                             <div className={`flex items-center justify-between rounded-xl border px-3 py-4 text-sm ${T.cardBorder} ${T.mutedSurface} ${T.title}`}>
                                 <span className="truncate">{selectedFood.name}</span>
@@ -375,6 +359,22 @@ export function FoodSection({ targetDate }: Props) {
                                 </button>
                             </div>
                         </>
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={() => setShowScanner(true)}
+                            disabled={isScanning}
+                            className={`w-full flex items-center justify-center gap-2 rounded-xl border px-3 py-8 text-sm transition ${T.cardBorder} ${T.mutedSurface} ${T.accent} hover:${T.accentSoft}`}
+                        >
+                            {isScanning ? (
+                                <span className="animate-spin h-6 w-6 border-2 border-current border-t-transparent rounded-full" />
+                            ) : (
+                                <>
+                                    <ScanLine className="h-6 w-6" />
+                                    <span>{t('Kamerayı Aç ve Barkod Okut', 'Open Camera & Scan')}</span>
+                                </>
+                            )}
+                        </button>
                     )}
                 </div>
             )}

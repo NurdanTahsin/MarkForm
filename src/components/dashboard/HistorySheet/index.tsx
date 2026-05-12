@@ -35,7 +35,7 @@ export function HistorySheet({ open, onClose }: Props) {
 
     const past30Logs = useMemo(
         () => buildPast30Logs(logs, last30Start),
-        [logs, last30Start, todayDate]
+        [logs, last30Start]
     );
 
     const future7Logs = useMemo(
@@ -70,8 +70,7 @@ export function HistorySheet({ open, onClose }: Props) {
             {/* Dialog — fixed height, internal scroll */}
             <div
                 ref={dialogRef}
-                className={`relative flex flex-col w-full max-w-2xl rounded-3xl border shadow-2xl ${T.dropdownBg} ${T.cardBorder}`}
-                style={{ height: 'min(90vh, 720px)' }}
+                className={`relative flex flex-col w-full max-w-2xl rounded-3xl border shadow-2xl ${T.dropdownBg} ${T.cardBorder} h-[min(90vh,720px)]`}
             >
                 {/* Sticky Header */}
                 <div className={`flex shrink-0 items-center justify-between px-5 py-4 border-b ${T.cardBorder}`}>
@@ -96,16 +95,21 @@ export function HistorySheet({ open, onClose }: Props) {
                     {([
                         { key: 'past30' as HistoryTab, label: t('Son 30 Gün', 'Last 30 Days') },
                         { key: 'next7' as HistoryTab, label: t('Gelecek 7 Gün', 'Next 7 Days') },
-                    ]).map(({ key, label }) => (
-                        <button
-                            key={key}
-                            type="button"
-                            onClick={() => setActiveTab(key)}
-                            className={`rounded-xl border px-4 py-1.5 text-sm font-semibold transition ${activeTab === key ? `${T.accentSoft} ${T.accent} ${T.cardBorder}` : `${T.mutedSurface} ${T.subtitle} ${T.cardBorder}`}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
+                    ]).map(({ key, label }) => {
+                        const tabTone = activeTab === key
+                            ? `${T.accentSoft} ${T.accent} ${T.cardBorder}`
+                            : `${T.mutedSurface} ${T.subtitle} ${T.cardBorder}`;
+                        return (
+                            <button
+                                key={key}
+                                type="button"
+                                onClick={() => setActiveTab(key)}
+                                className={`rounded-xl border px-4 py-1.5 text-sm font-semibold transition ${tabTone}`}
+                            >
+                                {label}
+                            </button>
+                        );
+                    })}
                 </div>
 
                 {/* Scrollable Content */}

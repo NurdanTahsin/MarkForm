@@ -47,23 +47,27 @@ export default function Dashboard() {
                         <div className="relative flex items-center gap-2">
                             {/* Dil */}
                             <div className={`flex rounded-full border p-1 mr-2 ${T.cardBorder} ${T.dropdownBg}`}>
-                                {(['tr', 'en'] as const).map((lang) => (
-                                    <button
-                                        key={lang}
-                                        type="button"
-                                        onClick={() => setLanguage(lang)}
-                                        className={`flex-1 rounded-full px-3 py-1.5 text-xs font-semibold transition ${language === lang ? T.accentBtn : `${T.title}`}`}
-                                    >
-                                        {lang.toUpperCase()}
-                                    </button>
-                                ))}
+                                {(['tr', 'en'] as const).map((lang) => {
+                                    const langTone = language === lang ? T.accentBtn : T.title;
+                                    return (
+                                        <button
+                                            key={lang}
+                                            type="button"
+                                            onClick={() => setLanguage(lang)}
+                                            className={`flex-1 rounded-full px-3 py-1.5 text-xs font-semibold transition ${langTone}`}
+                                        >
+                                            {lang.toUpperCase()}
+                                        </button>
+                                    );
+                                })}
                             </div>
 
                             {showPeriodWarning && (
                                 <div className="relative flex items-center justify-center mr-1">
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         onClick={() => setPeriodWarningOpen(!periodWarningOpen)}
+                                        aria-label={t('Adet uyarısı', 'Period warning')}
                                         className="transition hover:opacity-80 focus:outline-none"
                                     >
                                         <AlertCircle className="h-6 w-6 text-rose-500 animate-pulse" />
