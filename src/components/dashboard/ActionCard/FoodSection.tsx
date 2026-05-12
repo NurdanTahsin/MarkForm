@@ -17,7 +17,6 @@ import { parseFoodInput } from '../../../utils/nlpEngine';
 import { useToastStore } from '../../../store/useToastStore';
 
 interface Props {
-    themeKey: string;
     targetDate?: string;
 }
 
@@ -27,7 +26,7 @@ function getMealLabel(key: MealKey): string {
     return MEAL_META.find((m) => m.key === key)!.storeLabel;
 }
 
-export function FoodSection({ themeKey, targetDate }: Props) {
+export function FoodSection({ targetDate }: Props) {
     const T = useActiveTheme();
     const language = useUserStore((s) => s.language);
     const storeAddFood = useUserStore((s) => s.addFoodToMeal);
@@ -260,7 +259,7 @@ export function FoodSection({ themeKey, targetDate }: Props) {
                             type="button"
                             onClick={handleAddListOrBarcode}
                             disabled={!preview}
-                            className={`shrink-0 rounded-xl px-8 py-3.5 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed ${T.accentBtn}`}
+                            className={`shrink-0 rounded-xl px-8 py-3.5 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed ${T.accentSecondary}`}
                         >
                             {t('Ekle', 'Add')}
                         </button>
@@ -288,7 +287,7 @@ export function FoodSection({ themeKey, targetDate }: Props) {
                         type="button"
                         onClick={handleAddManual}
                         disabled={!manualName.trim() || !manualKcal}
-                        className={`w-full rounded-xl px-4 py-3.5 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed ${T.accentBtn}`}
+                        className={`w-full rounded-xl px-4 py-3.5 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed ${T.accentSecondary}`}
                     >
                         {t('Ekle', 'Add')}
                     </button>
@@ -315,7 +314,7 @@ export function FoodSection({ themeKey, targetDate }: Props) {
                             type="button"
                             onClick={handleAddSmart}
                             disabled={!smartText.trim()}
-                            className={`shrink-0 rounded-xl px-8 py-3.5 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed ${T.accentBtn}`}
+                            className={`shrink-0 rounded-xl px-8 py-3.5 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed ${T.accentSecondary}`}
                         >
                             {t('Ekle', 'Add')}
                         </button>
@@ -370,7 +369,7 @@ export function FoodSection({ themeKey, targetDate }: Props) {
                                     type="button"
                                     onClick={handleAddListOrBarcode}
                                     disabled={!preview}
-                                    className={`shrink-0 rounded-xl px-8 py-3.5 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed ${T.accentBtn}`}
+                                    className={`shrink-0 rounded-xl px-8 py-3.5 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed ${T.accentSecondary}`}
                                 >
                                     {t('Ekle', 'Add')}
                                 </button>

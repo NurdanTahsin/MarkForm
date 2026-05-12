@@ -24,9 +24,6 @@ export function HistorySheet({ open, onClose }: Props) {
     const [activeTab, setActiveTab] = useState<HistoryTab>('past30');
 
     const targetKcal = Math.round(calorieTarget?.intake ?? 2000);
-    const targetProtein = Math.round((targetKcal * 0.3) / 4);
-    const targetCarb = Math.round((targetKcal * 0.4) / 4);
-    const targetFat = Math.round((targetKcal * 0.3) / 9);
 
     const todayDate = useMemo(() => {
         const date = new Date();
@@ -37,7 +34,7 @@ export function HistorySheet({ open, onClose }: Props) {
     const last30Start = useMemo(() => shiftDate(todayDate, -29), [todayDate]);
 
     const past30Logs = useMemo(
-        () => buildPast30Logs(logs, last30Start, todayDate),
+        () => buildPast30Logs(logs, last30Start),
         [logs, last30Start, todayDate]
     );
 
@@ -118,17 +115,11 @@ export function HistorySheet({ open, onClose }: Props) {
                             <Past30Tab
                                 past30Logs={past30Logs}
                                 targetKcal={targetKcal}
-                                targetProtein={targetProtein}
-                                targetCarb={targetCarb}
-                                targetFat={targetFat}
                             />
                         ) : (
                             <Next7Tab
                                 logs={future7Logs}
                                 targetKcal={targetKcal}
-                                targetProtein={targetProtein}
-                                targetCarb={targetCarb}
-                                targetFat={targetFat}
                             />
                         )}
                     </div>

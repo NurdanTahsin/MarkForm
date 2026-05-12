@@ -1,5 +1,5 @@
 import { CIRCUMFERENCE } from '../../constants/dashboardConstants';
-import { useActiveTheme, useUserStore } from '../../store/useUserStore';
+import { useActiveTheme } from '../../store/useUserStore';
 
 interface Props {
     value: number;
@@ -8,7 +8,6 @@ interface Props {
 
 export function CalorieRing({ value, max }: Props) {
     const T = useActiveTheme();
-    const themeKey = useUserStore((s) => s.theme);
     const offset = max > 0 ? Math.round(CIRCUMFERENCE * (1 - Math.min(1, value / max))) : CIRCUMFERENCE;
     return (
         <div className="relative h-36 w-36 shrink-0 sm:h-40 sm:w-40">
@@ -16,7 +15,7 @@ export function CalorieRing({ value, max }: Props) {
                 <circle cx="60" cy="60" r="46" fill="none" strokeWidth="10" className={T.ringTrack} />
                 <circle
                     cx="60" cy="60" r="46" fill="none" strokeWidth="10" strokeLinecap="round"
-                    className="stroke-[#4A6B31]"
+                    className="stroke-[#1E40AF]"
                     strokeDasharray={CIRCUMFERENCE}
                     strokeDashoffset={offset}
                 />

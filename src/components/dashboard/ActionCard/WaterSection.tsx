@@ -76,7 +76,7 @@ export function WaterSection({ targetDate }: { targetDate?: string }) {
                 type="button"
                 onClick={handleAddWater}
                 disabled={showWaterManual ? !waterManualInput : selectedWaterPreset === null}
-                className={`w-full rounded-xl px-4 py-3.5 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed ${T.accentBtn}`}
+                className={`w-full rounded-xl px-4 py-3.5 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed ${T.accentSecondary}`}
             >
                 {t('Ekle', 'Add')}
             </button>

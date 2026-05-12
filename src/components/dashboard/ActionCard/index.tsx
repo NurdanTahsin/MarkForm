@@ -7,7 +7,6 @@ import { ExerciseSection } from './ExerciseSection';
 
 export function ActionCard() {
     const T = useActiveTheme();
-    const themeKey = useUserStore((s) => s.theme);
     const language = useUserStore((s) => s.language);
     const t = (tr: string, en: string) => (language === 'tr' ? tr : en);
 
@@ -35,7 +34,7 @@ export function ActionCard() {
 
             {/* Content area — min-h keeps card stable between tabs */}
             <div className="min-h-64">
-                {activeSection === 'food' && <FoodSection themeKey={themeKey} />}
+                {activeSection === 'food' && <FoodSection />}
                 {activeSection === 'water' && <WaterSection />}
                 {activeSection === 'exercise' && <ExerciseSection />}
             </div>

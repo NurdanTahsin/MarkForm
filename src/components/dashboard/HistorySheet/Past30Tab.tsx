@@ -1,4 +1,5 @@
-import { useActiveTheme, useDailyCalorieTarget, useUserStore } from '../../../store/useUserStore';
+import { useActiveTheme, useUserStore } from '../../../store/useUserStore';
+import { useTranslate } from '../../../hooks/useTranslate';
 import { formatWater } from '../../../constants/dashboardConstants';
 import { HistoryDayCard } from './HistoryDayCard';
 import type { Past30LogEntry } from './historyHelpers';
@@ -6,23 +7,16 @@ import type { Past30LogEntry } from './historyHelpers';
 interface Props {
     past30Logs: Past30LogEntry[];
     targetKcal: number;
-    targetProtein: number;
-    targetCarb: number;
-    targetFat: number;
 }
 
 function CalorieBarChart({
     logs,
     targetKcal,
-    avgKcal,
-    themeKey,
 }: {
     logs: Past30LogEntry[];
     targetKcal: number;
-    avgKcal: number;
-    themeKey: string;
 }) {
-    const isDark = themeKey === 'dark';
+    const isDark = false; // Fresh Earthy theme is a light theme
     const ordered = [...logs].reverse(); // oldest → newest (left → right)
 
     const activeLogs = ordered.filter((e) => e.hasData);
@@ -86,16 +80,12 @@ function CalorieBarChart({
     );
 }
 
-export function Past30Tab({ past30Logs, targetKcal, targetProtein, targetCarb, targetFat }: Props) {
+export function Past30Tab({ past30Logs, targetKcal }: Props) {
     const T = useActiveTheme();
-    const themeKey = useUserStore((s) => s.theme);
+    const t = useTranslate();
     const language = useUserStore((s) => s.language);
     const goal = useUserStore((s) => s.goal);
-    const calorieTarget = useDailyCalorieTarget();
-    const t = (tr: string, en: string) => (language === 'tr' ? tr : en);
-    const isDark = themeKey === 'dark';
-
-    void calorieTarget;
+    const isDark = false; // Fresh Earthy theme is a light theme
 
     const summary = (() => {
         const activeLogs = past30Logs.filter((e) => e.hasData);
@@ -136,12 +126,9 @@ export function Past30Tab({ past30Logs, targetKcal, targetProtein, targetCarb, t
                     </span>
                 </div>
 
-                {/* Calorie Bar Chart */}
                 <CalorieBarChart
                     logs={past30Logs}
                     targetKcal={targetKcal}
-                    avgKcal={summary.avgKcal}
-                    themeKey={themeKey}
                 />
 
                 {/* Stats grid */}
@@ -190,9 +177,6 @@ export function Past30Tab({ past30Logs, targetKcal, targetProtein, targetCarb, t
                             key={entry.log.date}
                             entry={entry}
                             targetKcal={targetKcal}
-                            targetProtein={targetProtein}
-                            targetCarb={targetCarb}
-                            targetFat={targetFat}
                         />
                     ))}
                 </div>

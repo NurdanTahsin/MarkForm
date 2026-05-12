@@ -16,7 +16,6 @@ interface Props {
 
 export function AddEntryModal({ date, dateLabel, onClose }: Props) {
     const T = useActiveTheme();
-    const themeKey = useUserStore((s) => s.theme);
     const language = useUserStore((s) => s.language);
     const t = (tr: string, en: string) => (language === 'tr' ? tr : en);
     const [activeTab, setActiveTab] = useState<Tab>('food');
@@ -71,7 +70,7 @@ export function AddEntryModal({ date, dateLabel, onClose }: Props) {
                 {/* Content */}
                 <div className="p-5 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 130px)' }}>
                     {activeTab === 'food' && (
-                        <FoodSection themeKey={themeKey} targetDate={date} />
+                        <FoodSection targetDate={date} />
                     )}
                     {activeTab === 'water' && (
                         <WaterSection targetDate={date} />

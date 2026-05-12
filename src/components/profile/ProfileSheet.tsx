@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { LogOut, X, ChevronDown, User, Target, Settings, Scale, Heart } from 'lucide-react';
-import { THEME_PRESETS, type ThemeKey } from '../../constants/themes';
+import { LogOut, X, ChevronDown, User, Target, Heart } from 'lucide-react';
+import { resolveTheme, type DashTheme } from '../../constants/themes';
 import { formatMonthLabel, startOfDay, formatDateInput } from '../../utils/dateUtils';
 import { calculateBMR } from '../../utils/healthEngine';
 import { useDailyCalorieTarget, useUserStore } from '../../store/useUserStore';
@@ -36,13 +36,11 @@ interface Props {
 export function ProfileSheet({ open, onClose }: Props) {
     const stats = useUserStore((s) => s.stats);
     const goal = useUserStore((s) => s.goal);
-    const theme = useUserStore((s) => s.theme);
     const language = useUserStore((s) => s.language);
     const waterTarget = useUserStore((s) => s.waterTarget);
     const weightLog = useUserStore((s) => s.weightLog);
     const setStats = useUserStore((s) => s.setStats);
     const setGoal = useUserStore((s) => s.setGoal);
-    const setTheme = useUserStore((s) => s.setTheme);
     const setLanguage = useUserStore((s) => s.setLanguage);
     const setWaterTarget = useUserStore((s) => s.setWaterTarget);
     const clearAll = useUserStore((s) => s.clearAll);
@@ -50,14 +48,14 @@ export function ProfileSheet({ open, onClose }: Props) {
     const [activeTab, setActiveTab] = useState<'profile' | 'weight'>('profile');
 
     if (!open) return null;
-    const formKey = JSON.stringify({ stats, goal, waterTarget, theme, language });
+    const formKey = JSON.stringify({ stats, goal, waterTarget, language });
     return createPortal(
         <ProfileSheetContent
             key={formKey}
-            stats={stats} goal={goal} theme={theme} language={language}
+            stats={stats} goal={goal} language={language}
             waterTarget={waterTarget} weightLog={weightLog}
             activeTab={activeTab} setActiveTab={setActiveTab}
-            setStats={setStats} setGoal={setGoal} setTheme={setTheme}
+            setStats={setStats} setGoal={setGoal}
             setLanguage={setLanguage} setWaterTarget={setWaterTarget}
             clearAll={clearAll} onClose={onClose}
         />,
@@ -69,10 +67,10 @@ function AccordionSection({
     id, icon: Icon, title, subtitle, isOpen, onToggle, children, theme,
 }: {
     id: string; icon: React.ElementType; title: string; subtitle: string;
-    isOpen: boolean; onToggle: () => void; children: React.ReactNode; theme: any;
+    isOpen: boolean; onToggle: () => void; children: React.ReactNode; theme: DashTheme;
 }) {
     return (
-        <div className={`rounded-2xl border overflow-hidden transition-all ${theme.cardBorder} ${theme.cardBg}`}>
+        <div className={`rounded-2xl border transition-all ${theme.cardBorder} ${theme.cardBg}`}>
             <button
                 type="button"
                 id={`accordion-${id}`}
@@ -111,12 +109,28 @@ function FieldRow({ label, error, children, unit }: { label: string; error?: str
     );
 }
 
-function ProfileSheetContent({ stats, goal, theme, language, waterTarget, weightLog, activeTab, setActiveTab, setStats, setGoal, setTheme, setLanguage, setWaterTarget, clearAll, onClose }: any) {
+interface ProfileSheetContentProps {
+    stats: ReturnType<typeof useUserStore.getState>['stats'];
+    goal: ReturnType<typeof useUserStore.getState>['goal'];
+    language: 'tr' | 'en';
+    waterTarget: number;
+    weightLog: ReturnType<typeof useUserStore.getState>['weightLog'];
+    activeTab: 'profile' | 'weight';
+    setActiveTab: React.Dispatch<React.SetStateAction<'profile' | 'weight'>>;
+    setStats: ReturnType<typeof useUserStore.getState>['setStats'];
+    setGoal: ReturnType<typeof useUserStore.getState>['setGoal'];
+    setLanguage: ReturnType<typeof useUserStore.getState>['setLanguage'];
+    setWaterTarget: ReturnType<typeof useUserStore.getState>['setWaterTarget'];
+    clearAll: ReturnType<typeof useUserStore.getState>['clearAll'];
+    onClose: () => void;
+}
+
+function ProfileSheetContent({ stats, goal, language, waterTarget, weightLog, activeTab, setActiveTab, setStats, setGoal, setLanguage, setWaterTarget, clearAll, onClose }: ProfileSheetContentProps) {
     const addToast = useToastStore((s) => s.addToast);
     const today = useMemo(() => startOfDay(new Date()), []);
     const initialDraft = useMemo(
-        () => createInitialDraft({ stats, goal, email: '', theme, language, waterTarget }),
-        [goal, language, stats, theme, waterTarget]
+        () => createInitialDraft({ stats, goal, email: '', language, waterTarget }),
+        [goal, language, stats, waterTarget]
     );
     const [draft, setDraft] = useState<ProfileDraftState>(initialDraft);
     const [selectedMonthOffset, setSelectedMonthOffset] = useState(() => getInitialMonthOffset(goal?.targetDate, today));
@@ -124,7 +138,7 @@ function ProfileSheetContent({ stats, goal, theme, language, waterTarget, weight
     const [openSection, setOpenSection] = useState<string | null>(null);
     const [isActivityDropdownOpen, setIsActivityDropdownOpen] = useState(false);
 
-    const previewTheme = THEME_PRESETS[draft.theme as ThemeKey];
+    const previewTheme = resolveTheme();
     const copy = PROFILE_COPY[draft.language as 'tr' | 'en'];
     const inputBase = `w-full rounded-xl border px-3 py-2.5 text-sm outline-none transition ${previewTheme.inputBg} ${previewTheme.inputBorder} ${previewTheme.inputText} ${previewTheme.ring} focus:ring-1`;
 
@@ -168,7 +182,6 @@ function ProfileSheetContent({ stats, goal, theme, language, waterTarget, weight
         setStats(baseStats);
         setGoal(goalDraft);
         setWaterTarget(parsedDraft.waterTarget);
-        setTheme(draft.theme);
         setLanguage(draft.language);
         addToast(draft.language === 'tr' ? 'Profil başarıyla güncellendi.' : 'Profile successfully updated.', 'success');
         onClose();
@@ -219,7 +232,7 @@ function ProfileSheetContent({ stats, goal, theme, language, waterTarget, weight
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto px-4 py-5 space-y-3">
+                <div className="flex-1 overflow-y-auto px-4 py-5 space-y-3 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#828A7E]/30 hover:[&::-webkit-scrollbar-thumb]:bg-[#828A7E]/50">
                     {activeTab === 'profile' && (
                         <>
                             {/* Stats Bar */}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { History, User, AlertCircle } from 'lucide-react';
 import { useActiveTheme, useUserStore } from '../store/useUserStore';
+import { useTranslate } from '../hooks/useTranslate';
 import { DailySummaryCard } from '../components/dashboard/DailySummaryCard';
 import { ActionCard } from '../components/dashboard/ActionCard';
 import { HistorySheet } from '../components/dashboard/HistorySheet';
@@ -10,9 +11,10 @@ import { addDays } from '../utils/dateUtils';
 
 export default function Dashboard() {
     const T = useActiveTheme();
+    const t = useTranslate();
     const language = useUserStore((state) => state.language);
+    const setLanguage = useUserStore((state) => state.setLanguage);
     const stats = useUserStore((state) => state.stats);
-    const t = (tr: string, en: string) => (language === 'tr' ? tr : en);
     const [profileOpen, setProfileOpen] = useState(false);
     const [historyOpen, setHistoryOpen] = useState(false);
 
@@ -49,7 +51,7 @@ export default function Dashboard() {
                                     <button
                                         key={lang}
                                         type="button"
-                                        onClick={() => useUserStore.getState().setLanguage(lang)}
+                                        onClick={() => setLanguage(lang)}
                                         className={`flex-1 rounded-full px-3 py-1.5 text-xs font-semibold transition ${language === lang ? T.accentBtn : `${T.title}`}`}
                                     >
                                         {lang.toUpperCase()}

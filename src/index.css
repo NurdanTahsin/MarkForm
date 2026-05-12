@@ -1,11 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
+/* ── Global Reset & Font ─────────────────────────────────────────────────── */
 body {
     font-family: 'Outfit', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #0A7C6E;
+    background-color: #FAFAF8; /* Sage & Stone — sıcak krem zemin */
 }
 
 button,
@@ -14,6 +15,7 @@ a {
     cursor: pointer;
 }
 
+/* ── Macro Progress Bars ─────────────────────────────────────────────────── */
 .macro-bar {
     width: 100%;
     height: 10px;
@@ -24,16 +26,15 @@ a {
     background-color: transparent;
     -webkit-appearance: none;
     appearance: none;
-    --macro-fill: #6366f1;
-    /* default indigo */
+    --macro-fill: #0EA5E9; /* Ocean Breeze primary */
 }
 
 .macro-track-light {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: #F1F5F9;
 }
 
 .macro-track-dark {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
 .macro-bar::-webkit-progress-bar {
@@ -41,74 +42,73 @@ a {
 }
 
 .macro-track-light::-webkit-progress-bar {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: #F1F5F9;
 }
 
 .macro-track-dark::-webkit-progress-bar {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
 .macro-bar::-webkit-progress-value {
     border-radius: 9999px;
-    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     background-color: var(--macro-fill);
 }
 
 .macro-bar::-moz-progress-bar {
     border-radius: 9999px;
-    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     background-color: var(--macro-fill);
 }
 
-/* Updated Colors for Fresh & Earthy Light Theme */
+/* Protein — Teal */
 .macro-fill-emerald {
-    --macro-fill: #4A6B31; /* Deep Grass Green */
-    box-shadow: none;
+    --macro-fill: #14B8A6;
 }
-
 .macro-fill-emerald-dark {
-    --macro-fill: #4A6B31;
+    --macro-fill: #2DD4BF;
 }
 
+/* Yağ — Amber */
 .macro-fill-amber {
-    --macro-fill: #F08A1D; /* Vibrant Orange */
-    box-shadow: none;
+    --macro-fill: #F59E0B;
 }
-
 .macro-fill-amber-dark {
-    --macro-fill: #F08A1D;
+    --macro-fill: #FBBF24;
 }
 
+/* Karb — Violet */
 .macro-fill-sky {
-    --macro-fill: #E63946; /* Warning Red */
-    box-shadow: none;
+    --macro-fill: #8B5CF6;
 }
-
 .macro-fill-sky-dark {
-    --macro-fill: #E63946;
+    --macro-fill: #93BDC9;
 }
 
-/* Micro-animations & Transitions for Premium Vibe */
+/* ── Micro-animations & Transitions ─────────────────────────────────────── */
 @layer utilities {
     .animate-in {
-        animation: animate-in 0.3s ease-out;
+        animation: animate-in 0.25s ease-out;
     }
 
     .animate-fade-up {
-        animation: fade-up 0.4s ease-out forwards;
+        animation: fade-up 0.35s ease-out forwards;
     }
 
     .animate-pulse-slow {
         animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    .slide-in-from-right {
+        animation: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 }
 
 @keyframes animate-in {
     from {
         opacity: 0;
-        transform: scale(0.95);
+        transform: scale(0.96);
     }
-
     to {
         opacity: 1;
         transform: scale(1);
@@ -118,18 +118,52 @@ a {
 @keyframes fade-up {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(12px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-/* Global button and card hover smoothness */
+@keyframes slide-in-right {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ── Global Transitions ──────────────────────────────────────────────────── */
 button,
 a,
 .card-transition {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Custom Scrollbar — Ocean Breeze ─────────────────────────────────────── */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(14, 165, 233, 0.18) transparent;
+}
+
+*::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: rgba(14, 165, 233, 0.18);
+    border-radius: 9999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(14, 165, 233, 0.35);
 }

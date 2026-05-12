@@ -65,8 +65,7 @@ export interface Past30LogEntry {
 
 export function buildPast30Logs(
     logs: import('../../../types').DailyLog[],
-    last30Start: Date,
-    todayDate: Date
+    last30Start: Date
 ): Past30LogEntry[] {
     const result: Past30LogEntry[] = [];
     const logMap = new Map(logs.map((l) => [l.date, l]));

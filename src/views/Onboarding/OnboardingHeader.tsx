@@ -1,17 +1,14 @@
-import { THEME_PRESETS, type ThemeKey } from '../../constants/themes';
 import { useUserStore } from '../../store/useUserStore';
 import type { DashTheme } from '../../constants/themes';
 
 interface Props {
     language: 'tr' | 'en';
-    theme: ThemeKey;
     step: number;
     activeTheme: DashTheme;
 }
 
-export function OnboardingHeader({ language, theme, step, activeTheme: T }: Props) {
+export function OnboardingHeader({ language, step, activeTheme: T }: Props) {
     const setLanguage = useUserStore((s) => s.setLanguage);
-    const setTheme = useUserStore((s) => s.setTheme);
     const t = (tr: string, en: string) => (language === 'tr' ? tr : en);
 
     return (
@@ -39,29 +36,7 @@ export function OnboardingHeader({ language, theme, step, activeTheme: T }: Prop
                 ))}
             </div>
 
-            {/* Tema seçimi */}
-            <div className="mt-3 space-y-2">
-                <span className={`text-xs ${T.subtitle}`}>{t('Tema Seçimi:', 'Theme Selection:')}</span>
-                <div className="flex flex-wrap items-center gap-2">
-                    {(Object.keys(THEME_PRESETS) as ThemeKey[]).map((key) => (
-                        <button
-                            key={key}
-                            type="button"
-                            onClick={() => setTheme(key)}
-                            title={THEME_PRESETS[key].label}
-                            className={[
-                                'inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold transition',
-                                theme === key
-                                    ? `${T.ringProgress} ${T.cardBorder}`
-                                    : `${T.cardBorder} ${T.mutedSurface} ${T.title}`,
-                            ].join(' ')}
-                        >
-                            <span className={`h-3.5 w-3.5 rounded-full ${THEME_PRESETS[key].circle}`} />
-                            {THEME_PRESETS[key].label}
-                        </button>
-                    ))}
-                </div>
-            </div>
+
         </header>
     );
 }

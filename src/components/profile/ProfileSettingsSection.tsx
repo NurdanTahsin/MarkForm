@@ -1,5 +1,4 @@
-import type { DashTheme, ThemeKey } from '../../constants/themes';
-import { THEME_PRESETS } from '../../constants/themes';
+import type { DashTheme } from '../../constants/themes';
 import { ProfileField } from './ProfileField';
 import type { ProfileCopy, ProfileLanguage } from './profileCopy';
 
@@ -7,7 +6,6 @@ interface Props {
     theme: DashTheme;
     copy: ProfileCopy;
     inputClassName: string;
-    themeDraft: ThemeKey;
     languageDraft: ProfileLanguage;
     cycleEnabled: boolean;
     lastPeriodDate: string;
@@ -18,7 +16,6 @@ interface Props {
         lastPeriodDate?: string;
         cycleLength?: string;
     };
-    onThemeChange: (value: ThemeKey) => void;
     onLanguageChange: (value: ProfileLanguage) => void;
     onCycleEnabledChange: (value: boolean) => void;
     onLastPeriodDateChange: (value: string) => void;
@@ -30,14 +27,12 @@ export function ProfileSettingsSection({
     theme,
     copy,
     inputClassName,
-    themeDraft,
     languageDraft,
     cycleEnabled,
     lastPeriodDate,
     cycleLength,
     isFemale,
     errors,
-    onThemeChange,
     onLanguageChange,
     onCycleEnabledChange,
     onLastPeriodDateChange,
@@ -51,26 +46,6 @@ export function ProfileSettingsSection({
             </div>
 
             <div className="space-y-3">
-                <div className={`flex items-center justify-between gap-4 rounded-2xl border px-4 py-3 ${theme.cardBorder} ${theme.mutedSurface}`}>
-                    <p className={`text-sm font-semibold ${theme.title}`}>{copy.theme}</p>
-                    <div className="flex items-center gap-2">
-                        {(Object.keys(THEME_PRESETS) as ThemeKey[]).map((key) => (
-                            <button
-                                key={key}
-                                type="button"
-                                title={THEME_PRESETS[key].label}
-                                onClick={() => onThemeChange(key)}
-                                className={[
-                                    'inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold transition focus:outline-none',
-                                    themeDraft === key ? `${theme.ringProgress} ${theme.cardBorder}` : `${theme.cardBorder} ${theme.dropdownBg} ${theme.title}`,
-                                ].join(' ')}
-                            >
-                                <span className={`h-3.5 w-3.5 rounded-full ${THEME_PRESETS[key].circle}`} />
-                                {THEME_PRESETS[key].label}
-                            </button>
-                        ))}
-                    </div>
-                </div>
 
                 <div className={`flex items-center justify-between gap-4 rounded-2xl border px-4 py-3 ${theme.cardBorder} ${theme.mutedSurface}`}>
                     <p className={`text-sm font-semibold ${theme.title}`}>{copy.language}</p>

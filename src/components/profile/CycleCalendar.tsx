@@ -10,14 +10,7 @@ interface Props {
     language: 'tr' | 'en';
 }
 
-interface PhaseInfo {
-    name: string;
-    color: string;
-    bg: string;
-    border: string;
-    dot: string;
-    days: string; // e.g. "1-5"
-}
+
 
 function computePhaseForDay(
     dayOfCycle: number, // 1-based

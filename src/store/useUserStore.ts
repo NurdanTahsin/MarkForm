@@ -9,7 +9,7 @@ import {
     calculateTDEE,
     validateIntake,
 } from '../utils/healthEngine';
-import { THEME_PRESETS, type ThemeKey } from '../constants/themes';
+import { resolveTheme } from '../constants/themes';
 import { todayString } from '../constants/dashboardConstants';
 
 export interface WeightEntry {
@@ -32,14 +32,12 @@ interface UserStoreState {
     personalFoods: FoodItem[];
     language: 'tr' | 'en';
     email: string;
-    theme: ThemeKey;
     waterTarget: number;
     weightLog: WeightEntry[];
     setStats: (stats: UserStats) => void;
     setGoal: (goal: UserGoal) => void;
     setLanguage: (language: 'tr' | 'en') => void;
     setEmail: (email: string) => void;
-    setTheme: (theme: ThemeKey) => void;
     setWaterTarget: (ml: number) => void;
     addWeightEntry: (weight: number, date?: string) => void;
     updateWeightEntry: (id: string, weight: number, date: string) => void;
@@ -101,14 +99,12 @@ export const useUserStore = create<UserStoreState>()(
             personalFoods: [],
             language: 'tr',
             email: '',
-            theme: 'light',
             waterTarget: 2000,
             weightLog: [],
             setStats: (stats) => set({ stats }),
             setGoal: (goal) => set({ goal }),
             setLanguage: (language) => set({ language }),
             setEmail: (email) => set({ email }),
-            setTheme: (theme) => set({ theme }),
             setWaterTarget: (waterTarget) => set({ waterTarget }),
             addWeightEntry: (weight, date) =>
                 set((state) => {
@@ -116,25 +112,25 @@ export const useUserStore = create<UserStoreState>()(
                     const newEntry: WeightEntry = { id: `weight-${Date.now()}`, date: entryDate, weight };
                     const nextLog = [...state.weightLog, newEntry].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
                     const latestEntry = nextLog[nextLog.length - 1];
-                    const nextStats = state.stats ? { ...state.stats, currentWeight: latestEntry.weight } : null;
-                    if (nextStats) nextStats.TDEE = calculateTDEE(nextStats);
-                    return { weightLog: nextLog, stats: nextStats };
+                    const baseStats = state.stats ? { ...state.stats, currentWeight: latestEntry.weight } : null;
+                    const patchedStats = baseStats ? { ...baseStats, TDEE: calculateTDEE(baseStats) } : null;
+                    return { weightLog: nextLog, stats: patchedStats };
                 }),
             updateWeightEntry: (id, weight, date) =>
                 set((state) => {
                     const nextLog = state.weightLog.map(e => e.id === id ? { ...e, weight, date } : e).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
                     const latestEntry = nextLog[nextLog.length - 1];
-                    const nextStats = state.stats && latestEntry ? { ...state.stats, currentWeight: latestEntry.weight } : state.stats;
-                    if (nextStats) nextStats.TDEE = calculateTDEE(nextStats);
-                    return { weightLog: nextLog, stats: nextStats };
+                    const baseStats = state.stats && latestEntry ? { ...state.stats, currentWeight: latestEntry.weight } : state.stats;
+                    const patchedStats = baseStats ? { ...baseStats, TDEE: calculateTDEE(baseStats) } : null;
+                    return { weightLog: nextLog, stats: patchedStats };
                 }),
             removeWeightEntry: (id) =>
                 set((state) => {
                     const nextLog = state.weightLog.filter(e => e.id !== id);
                     const latestEntry = nextLog[nextLog.length - 1];
-                    const nextStats = state.stats && latestEntry ? { ...state.stats, currentWeight: latestEntry.weight } : state.stats;
-                    if (nextStats) nextStats.TDEE = calculateTDEE(nextStats);
-                    return { weightLog: nextLog, stats: nextStats };
+                    const baseStats = state.stats && latestEntry ? { ...state.stats, currentWeight: latestEntry.weight } : state.stats;
+                    const patchedStats = baseStats ? { ...baseStats, TDEE: calculateTDEE(baseStats) } : null;
+                    return { weightLog: nextLog, stats: patchedStats };
                 }),
             addLog: (log) => set((state) => ({ logs: [...state.logs, log] })),
             updateLog: (date, updates) =>
@@ -276,11 +272,7 @@ export const useUserStore = create<UserStoreState>()(
 // ── Hooks ──────────────────────────────────────────────────────────────────
 
 export function useActiveTheme() {
-    const theme = useUserStore((s) => s.theme);
-    if (theme && theme in THEME_PRESETS) {
-        return THEME_PRESETS[theme as ThemeKey];
-    }
-    return THEME_PRESETS.light;
+    return resolveTheme();
 }
 
 export function useDailyCalorieTarget(

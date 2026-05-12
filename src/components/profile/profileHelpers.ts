@@ -1,4 +1,4 @@
-import type { ThemeKey, DashTheme } from '../../constants/themes';
+import type { DashTheme } from '../../constants/themes';
 import {
     addDays,
     addMonthsKeepingDay,
@@ -25,7 +25,6 @@ export interface ProfileDraftState {
     targetWeight: string;
     weeklySportQuota: string;
     waterTarget: string;
-    theme: ThemeKey;
     language: ProfileLanguage;
 }
 
@@ -62,11 +61,10 @@ export function createInitialDraft(params: {
     stats: UserStats | null;
     goal: UserGoal | null;
     email: string;
-    theme: ThemeKey;
     language: ProfileLanguage;
     waterTarget: number;
 }): ProfileDraftState {
-    const { stats, goal, email, theme, language, waterTarget } = params;
+    const { stats, goal, email, language, waterTarget } = params;
     return {
         email,
         name: stats?.name ?? '',
@@ -82,7 +80,6 @@ export function createInitialDraft(params: {
         targetWeight: goal?.targetWeight?.toString() ?? '',
         weeklySportQuota: (goal?.weeklySportQuota ?? 0).toString(),
         waterTarget: waterTarget.toString(),
-        theme,
         language,
     };
 }
@@ -211,7 +208,6 @@ export function buildProfileSnapshot(params: {
         targetDate,
         weeklySportQuota: draft.weeklySportQuota.trim(),
         waterTarget: draft.waterTarget.trim(),
-        theme: draft.theme,
         language: draft.language,
     });
 }

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useDailyCalorieTarget, useUserStore } from '../../store/useUserStore';
-import { THEME_PRESETS } from '../../constants/themes';
+import { resolveTheme } from '../../constants/themes';
 import {
     addDays,
     addMonthsKeepingDay,
@@ -24,7 +24,6 @@ export default function Onboarding() {
     const setStats = useUserStore((state) => state.setStats);
     const setGoal = useUserStore((state) => state.setGoal);
     const language = useUserStore((state) => state.language);
-    const theme = useUserStore((state) => state.theme);
 
     const [step, setStep] = useState<WizardStep>(1);
 
@@ -45,7 +44,7 @@ export default function Onboarding() {
     const [selectedMonthOffset, setSelectedMonthOffset] = useState(1);
 
     const today = useMemo(() => startOfDay(new Date()), []);
-    const activeTheme = THEME_PRESETS[theme] ?? THEME_PRESETS.light;
+    const activeTheme = resolveTheme();
 
     const draftStats = useMemo(
         () => buildDraftStats({ name, age, height, currentWeight, gender, activityLevel }),
@@ -152,7 +151,6 @@ export default function Onboarding() {
 
                     <OnboardingHeader
                         language={language}
-                        theme={theme}
                         step={step}
                         activeTheme={activeTheme}
                     />

@@ -117,7 +117,7 @@ export function ExerciseSection({ targetDate }: { targetDate?: string }) {
                 type="button"
                 onClick={handleSaveExercise}
                 disabled={!selectedExercise || toNumber(exDuration) <= 0 || (selectedExercise === 'manual' && !exManualName.trim())}
-                className={`w-full rounded-xl px-4 py-3.5 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed ${T.accentBtn}`}
+                className={`w-full rounded-xl px-4 py-3.5 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed ${T.accentSecondary}`}
             >
                 {t('Kaydet', 'Save')}
             </button>

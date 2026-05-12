@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { Edit2, X, Trash2 } from 'lucide-react';
 import type { FoodItem, FoodUnit } from '../../types';
 import { useActiveTheme, useUserStore } from '../../store/useUserStore';
-import { BUILTIN_FOODS, toNumber, formatNutrition } from '../../constants/dashboardConstants';
+import { BUILTIN_FOODS, toNumber } from '../../constants/dashboardConstants';
 import { useToastStore } from '../../store/useToastStore';
 
 interface Props {
@@ -158,8 +158,8 @@ export function FoodLibraryModal({ open, onClose, onSelect }: Props) {
                 className="fixed inset-0 z-[500] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 sm:p-6"
                 onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
             >
-                <div className={`w-full max-w-lg max-h-[80vh] overflow-y-auto rounded-3xl shadow-2xl ${T.dropdownBg} ${T.cardBorder} [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300`}>
-                    <div className={`sticky top-0 z-10 flex items-center justify-between border-b px-5 py-4 ${T.dropdownBg} ${T.cardBorder}`}>
+                <div className={`w-full flex flex-col max-w-lg max-h-[80vh] rounded-3xl shadow-2xl overflow-hidden ${T.dropdownBg} ${T.cardBorder}`}>
+                    <div className={`shrink-0 flex items-center justify-between border-b px-5 py-4 ${T.dropdownBg} ${T.cardBorder}`}>
                         <h2 className={`text-base font-bold ${T.title}`}>
                             {onSelect ? t('Besin Seç', 'Select Food') : t('Yemek Listesi', 'Food Library')}
                         </h2>
@@ -168,7 +168,7 @@ export function FoodLibraryModal({ open, onClose, onSelect }: Props) {
                         </button>
                     </div>
 
-                    <div className="p-5 space-y-5">
+                    <div className="flex-1 overflow-y-auto p-5 space-y-5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#828A7E]/30 hover:[&::-webkit-scrollbar-thumb]:bg-[#828A7E]/50">
                         {/* Add new food form */}
                         <div className={`rounded-2xl border p-4 space-y-3 ${T.cardBorder} ${T.accentSoft}`}>
                             <p className={`text-xs font-semibold uppercase tracking-wide ${T.subtitle}`}>{t('Yeni Besin Ekle', 'Add New Food')}</p>

@@ -41,11 +41,6 @@ export function TodaysLog() {
         <section className={`rounded-3xl border p-5 sm:p-6 ${T.cardBg} ${T.cardBorder} shadow-sm`}>
             <div className="mb-3 flex items-center gap-2">
                 <h2 className={`text-base font-semibold ${T.title}`}>{t('Günün Kayıtları', "Today's Log")}</h2>
-                {totalMealCount > 0 && (
-                    <span className={`grid h-6 min-w-6 place-items-center rounded-full px-1 text-xs font-bold text-white ${T.accentBtn}`}>
-                        {totalMealCount}
-                    </span>
-                )}
             </div>
 
             <div className="space-y-2">

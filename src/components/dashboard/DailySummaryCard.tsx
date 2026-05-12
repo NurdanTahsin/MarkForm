@@ -6,7 +6,6 @@ import { CalorieRing } from './CalorieRing';
 
 export function DailySummaryCard() {
     const T = useActiveTheme();
-    const themeKey = useUserStore((s) => s.theme);
     const logs = useUserStore((s) => s.logs);
     const waterTarget = useUserStore((s) => s.waterTarget);
     const stats = useUserStore((s) => s.stats);
@@ -43,9 +42,9 @@ export function DailySummaryCard() {
     }, [workoutDuration, stats?.currentWeight]);
 
     const macros = [
-        { label: t('Protein', 'Protein'), current: totals.protein, target: targetProtein, barClass: themeKey === 'dark' ? 'macro-fill-emerald-dark' : 'macro-fill-emerald' },
-        { label: t('Yağ', 'Fat'), current: totals.fat, target: targetFat, barClass: themeKey === 'dark' ? 'macro-fill-amber-dark' : 'macro-fill-amber' },
-        { label: t('Karb', 'Carb'), current: totals.carb, target: targetCarb, barClass: themeKey === 'dark' ? 'macro-fill-sky-dark' : 'macro-fill-sky' },
+        { label: t('Protein', 'Protein'), current: totals.protein, target: targetProtein, barClass: 'macro-fill-emerald' },
+        { label: t('Yağ', 'Fat'), current: totals.fat, target: targetFat, barClass: 'macro-fill-amber' },
+        { label: t('Karb', 'Carb'), current: totals.carb, target: targetCarb, barClass: 'macro-fill-sky' },
     ];
 
     return (
@@ -78,7 +77,7 @@ export function DailySummaryCard() {
                                     </div>
 
                                     <progress
-                                        className={`macro-bar ${themeKey === 'dark' ? 'macro-track-dark' : 'macro-track-light'} ${barClass}`}
+                                        className={`macro-bar macro-track-light ${barClass}`}
                                         value={Math.max(0, Math.min(current, target || 0))}
                                         max={Math.max(1, target)}
                                         aria-label={`${label} progress`}
@@ -89,8 +88,8 @@ export function DailySummaryCard() {
                     </div>
 
                     <div className="mt-1.5 flex justify-center">
-                        <p className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-sm font-bold ${T.cardBorder} ${T.accentSoft} ${T.accent}`}>
-                            <Flame className={`h-4 w-4 ${T.accent}`} strokeWidth={2} />
+                        <p className="inline-flex items-center gap-1.5 rounded-2xl border border-[#0EA5E9]/25 bg-[#0EA5E9]/10 px-3 py-1.5 text-sm font-bold text-[#0284C7]">
+                            <Flame className="h-4 w-4 text-[#0EA5E9]" strokeWidth={2} />
                             {Math.max(0, targetKcal - Math.round(totals.kcal))} {t('kcal kalan', 'kcal left')}
                         </p>
                     </div>

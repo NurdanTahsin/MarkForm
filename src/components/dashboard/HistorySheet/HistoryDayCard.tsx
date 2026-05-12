@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import {
-    ChevronDown, ChevronRight, Droplets, Dumbbell,
-    Pencil, Plus, Trash2, Utensils, X, Check
+    ChevronDown, Droplets, Dumbbell,
+    Pencil, Plus, Trash2, X, Check
 } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { useActiveTheme, useUserStore } from '../../../store/useUserStore';
 import {
-    formatNutrition, formatWater, mealLabel, MEAL_META, toNumber
+    formatNutrition, formatWater, mealLabel, toNumber
 } from '../../../constants/dashboardConstants';
 import type { Past30LogEntry } from './historyHelpers';
 import { formatDayLabel, formatWeekday } from './historyHelpers';
@@ -18,9 +18,6 @@ import { ExerciseSection } from '../ActionCard/ExerciseSection';
 interface Props {
     entry: Past30LogEntry;
     targetKcal: number;
-    targetProtein: number;
-    targetCarb: number;
-    targetFat: number;
 }
 
 type OpenCategory = 'food' | 'water' | 'exercise' | null;
@@ -67,9 +64,8 @@ function EditModal({
 /* ─────────────────────────────────────────────────────────
    Main Card
 ───────────────────────────────────────────────────────── */
-export function HistoryDayCard({ entry, targetKcal, targetProtein, targetCarb, targetFat }: Props) {
+export function HistoryDayCard({ entry, targetKcal }: Props) {
     const T = useActiveTheme();
-    const themeKey = useUserStore((s) => s.theme);
     const language = useUserStore((s) => s.language);
     const removeFoodFromMeal = useUserStore((s) => s.removeFoodFromMeal);
     const removeLog = useUserStore((s) => s.removeLog);
@@ -126,10 +122,6 @@ export function HistoryDayCard({ entry, targetKcal, targetProtein, targetCarb, t
     };
 
     const kcalPct = Math.min(100, targetKcal > 0 ? Math.round((totals.kcal / targetKcal) * 100) : 0);
-    const proteinPct = Math.min(100, targetProtein > 0 ? Math.round((totals.protein / targetProtein) * 100) : 0);
-    const carbPct = Math.min(100, targetCarb > 0 ? Math.round((totals.carb / targetCarb) * 100) : 0);
-    const fatPct = Math.min(100, targetFat > 0 ? Math.round((totals.fat / targetFat) * 100) : 0);
-
     const isDark = true; // Current earthy theme is a dark theme
     const dateLabel = formatDayLabel(dateObj, language);
     const weekday = formatWeekday(dateObj, language);
