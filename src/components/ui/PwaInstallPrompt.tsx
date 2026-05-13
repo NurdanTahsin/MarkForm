@@ -5,9 +5,19 @@ type BeforeInstallPromptEvent = Event & {
     userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
 };
 
-const isStandalone = () =>
-    window.matchMedia?.('(display-mode: standalone)').matches ||
-    (window.navigator as { standalone?: boolean }).standalone === true;
+const getWindow = (): Window | undefined => {
+    if (typeof globalThis === 'undefined') {
+        return undefined;
+    }
+
+    return (globalThis as { window?: Window }).window;
+};
+
+const isStandalone = () => {
+    const win = getWindow();
+    const nav = win?.navigator as { standalone?: boolean } | undefined;
+    return !!(win?.matchMedia?.('(display-mode: standalone)').matches || nav?.standalone === true);
+};
 
 function PwaInstallPrompt() {
     const [promptEvent, setPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
@@ -16,11 +26,21 @@ function PwaInstallPrompt() {
     const [isIos, setIsIos] = useState(false);
 
     useEffect(() => {
+        const win = getWindow();
+        if (!win) {
+            return;
+        }
+
         setIsInstalled(isStandalone());
-        setIsIos(/iphone|ipad|ipod/i.test(window.navigator.userAgent));
+        setIsIos(/iphone|ipad|ipod/i.test(win.navigator.userAgent));
     }, []);
 
     useEffect(() => {
+        const win = getWindow();
+        if (!win) {
+            return;
+        }
+
         const handleBeforeInstallPrompt = (event: Event) => {
             event.preventDefault();
             setPromptEvent(event as BeforeInstallPromptEvent);
@@ -31,12 +51,12 @@ function PwaInstallPrompt() {
             setPromptEvent(null);
         };
 
-        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-        window.addEventListener('appinstalled', handleAppInstalled);
+        win.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        win.addEventListener('appinstalled', handleAppInstalled);
 
         return () => {
-            window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-            window.removeEventListener('appinstalled', handleAppInstalled);
+            win.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+            win.removeEventListener('appinstalled', handleAppInstalled);
         };
     }, []);
 
@@ -61,7 +81,7 @@ function PwaInstallPrompt() {
     };
 
     return (
-        <div className="fixed bottom-4 left-4 right-4 z-50 sm:left-auto sm:right-6 sm:w-[360px]">
+        <div className="fixed bottom-4 left-4 right-4 z-50 sm:left-auto sm:right-6 sm:w-90">
             <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.12)]">
                 <div className="flex items-start gap-3">
                     <div className="mt-0.5 h-10 w-10 rounded-xl bg-[#0EA5E9]/10 flex items-center justify-center">
