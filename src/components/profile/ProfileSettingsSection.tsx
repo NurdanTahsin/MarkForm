@@ -39,8 +39,43 @@ export function ProfileSettingsSection({
     onLastPeriodDateChange,
     onCycleLengthChange,
     maxPeriodDate,
-}: Props) {
+}: Readonly<Props>) {
     const { session, isGuest, signOut } = useAuthStore();
+    let accountContent: JSX.Element | null = null;
+
+    if (session) {
+        accountContent = (
+            <>
+                <p className={`text-xs ${theme.subtitle}`}>
+                    Giriş yapılan hesap: <span className="font-semibold">{session.user.email}</span>
+                </p>
+                <button
+                    id="profile-sign-out-btn"
+                    type="button"
+                    onClick={() => signOut()}
+                    className="w-full py-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-sm font-semibold hover:bg-rose-100 active:scale-95 transition-all"
+                >
+                    Çıkış Yap
+                </button>
+            </>
+        );
+    } else if (isGuest) {
+        accountContent = (
+            <>
+                <p className={`text-xs ${theme.subtitle}`}>
+                    Misafir modundasın — veriler yalnızca bu cihazda saklanır.
+                </p>
+                <button
+                    id="profile-create-account-btn"
+                    type="button"
+                    onClick={() => signOut()}
+                    className={`w-full py-2.5 rounded-xl text-sm font-semibold active:scale-95 transition-all ${theme.accentBtn}`}
+                >
+                    Hesap Oluştur / Giriş Yap
+                </button>
+            </>
+        );
+    }
 
     return (
         <section className={`rounded-3xl border p-5 shadow-sm ${theme.cardBorder} ${theme.cardBg}`}>
@@ -53,16 +88,21 @@ export function ProfileSettingsSection({
                 <div className={`flex items-center justify-between gap-4 rounded-2xl border px-4 py-3 ${theme.cardBorder} ${theme.mutedSurface}`}>
                     <p className={`text-sm font-semibold ${theme.title}`}>{copy.language}</p>
                     <div className={`flex rounded-full border p-1 shadow-sm ${theme.cardBorder} ${theme.dropdownBg}`}>
-                        {(['tr', 'en'] as const).map((language) => (
-                            <button
-                                key={language}
-                                type="button"
-                                onClick={() => onLanguageChange(language)}
-                                className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${languageDraft === language ? theme.accentBtn : `${theme.title} ${theme.mutedSurface}`}`}
-                            >
-                                {copy.languageLabels[language]}
-                            </button>
-                        ))}
+                        {(['tr', 'en'] as const).map((language) => {
+                            const tone = languageDraft === language
+                                ? theme.accentBtn
+                                : [theme.title, theme.mutedSurface].join(' ');
+                            return (
+                                <button
+                                    key={language}
+                                    type="button"
+                                    onClick={() => onLanguageChange(language)}
+                                    className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${tone}`}
+                                >
+                                    {copy.languageLabels[language]}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
 
@@ -112,35 +152,7 @@ export function ProfileSettingsSection({
 
                 {/* Hesap / Çıkış */}
                 <div className={`rounded-2xl border px-4 py-3 space-y-2 ${theme.cardBorder} ${theme.mutedSurface}`}>
-                    {session ? (
-                        <>
-                            <p className={`text-xs ${theme.subtitle}`}>
-                                Giriş yapılan hesap: <span className="font-semibold">{session.user.email}</span>
-                            </p>
-                            <button
-                                id="profile-sign-out-btn"
-                                type="button"
-                                onClick={() => signOut()}
-                                className="w-full py-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-sm font-semibold hover:bg-rose-100 active:scale-95 transition-all"
-                            >
-                                Çıkış Yap
-                            </button>
-                        </>
-                    ) : isGuest ? (
-                        <>
-                            <p className={`text-xs ${theme.subtitle}`}>
-                                Misafir modundasın — veriler yalnızca bu cihazda saklanır.
-                            </p>
-                            <button
-                                id="profile-create-account-btn"
-                                type="button"
-                                onClick={() => signOut()}
-                                className={`w-full py-2.5 rounded-xl text-sm font-semibold active:scale-95 transition-all ${theme.accentBtn}`}
-                            >
-                                Hesap Oluştur / Giriş Yap
-                            </button>
-                        </>
-                    ) : null}
+                    {accountContent}
                 </div>
 
             </div>

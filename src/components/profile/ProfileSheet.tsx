@@ -143,7 +143,7 @@ function ProfileSheetContent({ stats, goal, language, waterTarget, weightLog, ac
     const previewTheme = resolveTheme();
     const idPrefix = 'profile-sheet';
     const fieldId = (name: string) => `${idPrefix}-${name}`;
-    const copy = PROFILE_COPY[draft.language as 'tr' | 'en'];
+    const copy = PROFILE_COPY[draft.language];
     const inputBase = `w-full rounded-xl border px-3 py-2.5 text-sm outline-none transition ${previewTheme.inputBg} ${previewTheme.inputBorder} ${previewTheme.inputText} ${previewTheme.ring} focus:ring-1`;
 
     const parsedDraft = useMemo(() => parseDraftNumbers(draft), [draft]);
@@ -196,6 +196,46 @@ function ProfileSheetContent({ stats, goal, language, waterTarget, weightLog, ac
     };
 
     const validationTitle = canSave ? '' : Object.values(validationErrors).join('\n');
+
+    let accountContent: JSX.Element | null = null;
+
+    if (session) {
+        accountContent = (
+            <>
+                <div>
+                    <p className={`text-sm font-semibold ${previewTheme.title}`}>Hesap Bilgileri</p>
+                    <p className={`text-xs mt-0.5 ${previewTheme.subtitle}`}>
+                        Giriş yapılan hesap: <span className="font-semibold">{session.user.email}</span>
+                    </p>
+                </div>
+                <button
+                    type="button"
+                    onClick={() => signOut()}
+                    className="w-full py-2.5 rounded-xl bg-white border border-[#E2E8F0] text-[#0F172A] text-sm font-semibold hover:bg-slate-50 active:scale-95 transition-all shadow-sm"
+                >
+                    Çıkış Yap
+                </button>
+            </>
+        );
+    } else if (isGuest) {
+        accountContent = (
+            <>
+                <div>
+                    <p className={`text-sm font-semibold ${previewTheme.title}`}>Misafir Modu</p>
+                    <p className={`text-xs mt-0.5 ${previewTheme.subtitle}`}>
+                        Veriler yalnızca bu cihazda saklanır. Yedeklemek için hesap oluşturun.
+                    </p>
+                </div>
+                <button
+                    type="button"
+                    onClick={() => signOut()}
+                    className={`w-full py-2.5 rounded-xl text-sm font-semibold active:scale-95 transition-all shadow-sm ${previewTheme.accentBtn}`}
+                >
+                    Hesap Oluştur / Giriş Yap
+                </button>
+            </>
+        );
+    }
 
     return (
         <div className="fixed inset-0 z-50 flex justify-end">
@@ -481,7 +521,7 @@ function ProfileSheetContent({ stats, goal, language, waterTarget, weightLog, ac
                                                 lastPeriodDate={draft.lastPeriodDate}
                                                 cycleLength={Number(draft.cycleLength) || 28}
                                                 periodLength={Number(draft.periodLength) || 6}
-                                                language={draft.language as 'tr' | 'en'}
+                                                language={draft.language}
                                             />
                                         )}
                                     </div>
@@ -490,39 +530,7 @@ function ProfileSheetContent({ stats, goal, language, waterTarget, weightLog, ac
 
                             {/* Hesap & Oturum Alanı */}
                             <div className={`rounded-2xl border p-4 space-y-3 ${previewTheme.cardBorder} ${previewTheme.mutedSurface}`}>
-                                {session ? (
-                                    <>
-                                        <div>
-                                            <p className={`text-sm font-semibold ${previewTheme.title}`}>Hesap Bilgileri</p>
-                                            <p className={`text-xs mt-0.5 ${previewTheme.subtitle}`}>
-                                                Giriş yapılan hesap: <span className="font-semibold">{session.user.email}</span>
-                                            </p>
-                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={() => signOut()}
-                                            className="w-full py-2.5 rounded-xl bg-white border border-[#E2E8F0] text-[#0F172A] text-sm font-semibold hover:bg-slate-50 active:scale-95 transition-all shadow-sm"
-                                        >
-                                            Çıkış Yap
-                                        </button>
-                                    </>
-                                ) : isGuest ? (
-                                    <>
-                                        <div>
-                                            <p className={`text-sm font-semibold ${previewTheme.title}`}>Misafir Modu</p>
-                                            <p className={`text-xs mt-0.5 ${previewTheme.subtitle}`}>
-                                                Veriler yalnızca bu cihazda saklanır. Yedeklemek için hesap oluşturun.
-                                            </p>
-                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={() => signOut()}
-                                            className={`w-full py-2.5 rounded-xl text-sm font-semibold active:scale-95 transition-all shadow-sm ${previewTheme.accentBtn}`}
-                                        >
-                                            Hesap Oluştur / Giriş Yap
-                                        </button>
-                                    </>
-                                ) : null}
+                                {accountContent}
                             </div>
 
                             {/* Tehlikeli Alan */}

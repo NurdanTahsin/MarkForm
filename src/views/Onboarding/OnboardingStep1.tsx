@@ -24,10 +24,15 @@ export function OnboardingStep1({
     gender, setGender, activityLevel, setActivityLevel,
     enableCycleTracking, setEnableCycleTracking, lastPeriodStartDate, setLastPeriodStartDate,
     averageCycleLength, setAverageCycleLength, today,
-}: Props) {
+}: Readonly<Props>) {
     const t = (tr: string, en: string) => (language === 'tr' ? tr : en);
+    const isFemale = gender === 'female';
     const cycleTrackingEnabled = gender === 'female' && enableCycleTracking;
     const inputCls = `w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 ${T.inputBg} ${T.inputBorder} ${T.inputText} ${T.ring}`;
+    let cycleStatusLabel = t('Sadece kadınlar için', 'Female only');
+    if (isFemale) {
+        cycleStatusLabel = cycleTrackingEnabled ? t('Açık', 'On') : t('Kapalı', 'Off');
+    }
 
     return (
         <div className="space-y-4">
@@ -72,11 +77,11 @@ export function OnboardingStep1({
                     <span className={`text-sm font-medium ${T.title}`}>{t('Döngü Takibi', 'Period Tracking')}</span>
                     <button
                         type="button"
-                        disabled={gender !== 'female'}
+                        disabled={!isFemale}
                         onClick={() => setEnableCycleTracking(!enableCycleTracking)}
                         className={[
                             `flex w-full items-center justify-between rounded-xl border px-4 py-3 transition ${T.inputBorder}`,
-                            gender !== 'female' ? 'cursor-not-allowed opacity-50' : T.inputBg,
+                            isFemale ? T.inputBg : 'cursor-not-allowed opacity-50',
                         ].join(' ')}
                     >
                         <span className={`flex items-center gap-2 text-sm font-semibold ${T.title}`}>
@@ -86,9 +91,7 @@ export function OnboardingStep1({
                             {t('Takibi Etkinleştir', 'Enable Tracking')}
                         </span>
                         <span className={`text-xs ${T.subtitle}`}>
-                            {gender !== 'female'
-                                ? t('Sadece kadınlar için', 'Female only')
-                                : cycleTrackingEnabled ? t('Açık', 'On') : t('Kapalı', 'Off')}
+                            {cycleStatusLabel}
                         </span>
                     </button>
                 </div>

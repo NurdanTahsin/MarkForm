@@ -52,7 +52,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: window.location.origin,
+                redirectTo: globalThis.location.origin,
             },
         });
         if (error) set({ error: error.message, loading: false });
@@ -73,9 +73,8 @@ export const useAuthStore = create<AuthState>((set) => ({
 }));
 
 // Uygulama başladığında session'ı restore et
-supabase.auth.getSession().then(({ data: { session } }) => {
-    useAuthStore.getState()._setSession(session);
-});
+const { data: { session } } = await supabase.auth.getSession();
+useAuthStore.getState()._setSession(session);
 
 // Auth değişikliklerini dinle
 supabase.auth.onAuthStateChange((_event, session) => {
