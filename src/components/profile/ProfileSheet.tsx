@@ -6,6 +6,7 @@ import { addMonthsKeepingDay, formatDateInput, formatMonthLabel, startOfDay } fr
 import { calculateBMR } from '../../utils/healthEngine';
 import { useDailyCalorieTarget, useUserStore } from '../../store/useUserStore';
 import { useToastStore } from '../../store/useToastStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import { CycleCalendar } from './CycleCalendar';
 import { PROFILE_COPY } from './profileCopy';
 import { WeightChart } from './WeightChart';
@@ -125,6 +126,9 @@ interface ProfileSheetContentProps {
 
 function ProfileSheetContent({ stats, goal, language, waterTarget, weightLog, activeTab, setActiveTab, setStats, setGoal, setLanguage, setWaterTarget, clearAll, onClose }: Readonly<ProfileSheetContentProps>) {
     const addToast = useToastStore((s) => s.addToast);
+    const session = useAuthStore((s) => s.session);
+    const isGuest = useAuthStore((s) => s.isGuest);
+    const signOut = useAuthStore((s) => s.signOut);
     const today = useMemo(() => startOfDay(new Date()), []);
     const initialDraft = useMemo(
         () => createInitialDraft({ stats, goal, email: '', language, waterTarget }),
@@ -483,6 +487,43 @@ function ProfileSheetContent({ stats, goal, language, waterTarget, weightLog, ac
                                     </div>
                                 </AccordionSection>
                             )}
+
+                            {/* Hesap & Oturum Alanı */}
+                            <div className={`rounded-2xl border p-4 space-y-3 ${previewTheme.cardBorder} ${previewTheme.mutedSurface}`}>
+                                {session ? (
+                                    <>
+                                        <div>
+                                            <p className={`text-sm font-semibold ${previewTheme.title}`}>Hesap Bilgileri</p>
+                                            <p className={`text-xs mt-0.5 ${previewTheme.subtitle}`}>
+                                                Giriş yapılan hesap: <span className="font-semibold">{session.user.email}</span>
+                                            </p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => signOut()}
+                                            className="w-full py-2.5 rounded-xl bg-white border border-[#E2E8F0] text-[#0F172A] text-sm font-semibold hover:bg-slate-50 active:scale-95 transition-all shadow-sm"
+                                        >
+                                            Çıkış Yap
+                                        </button>
+                                    </>
+                                ) : isGuest ? (
+                                    <>
+                                        <div>
+                                            <p className={`text-sm font-semibold ${previewTheme.title}`}>Misafir Modu</p>
+                                            <p className={`text-xs mt-0.5 ${previewTheme.subtitle}`}>
+                                                Veriler yalnızca bu cihazda saklanır. Yedeklemek için hesap oluşturun.
+                                            </p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => signOut()}
+                                            className={`w-full py-2.5 rounded-xl text-sm font-semibold active:scale-95 transition-all shadow-sm ${previewTheme.accentBtn}`}
+                                        >
+                                            Hesap Oluştur / Giriş Yap
+                                        </button>
+                                    </>
+                                ) : null}
+                            </div>
 
                             {/* Tehlikeli Alan */}
                             <div className={`rounded-2xl border p-4 ${previewTheme.dangerSurface} ${previewTheme.dangerBorder}`}>

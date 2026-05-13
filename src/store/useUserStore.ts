@@ -10,7 +10,7 @@ import {
     validateIntake,
 } from '../utils/healthEngine';
 import { resolveTheme } from '../constants/themes';
-import { todayString } from '../constants/dashboardConstants';
+import { DEFAULT_FOODS, todayString } from '../constants/dashboardConstants';
 
 export interface WeightEntry {
     id: string;
@@ -96,7 +96,7 @@ export const useUserStore = create<UserStoreState>()(
             stats: null,
             goal: null,
             logs: [],
-            personalFoods: [],
+            personalFoods: DEFAULT_FOODS,
             language: 'tr',
             email: '',
             waterTarget: 2000,
@@ -262,10 +262,23 @@ export const useUserStore = create<UserStoreState>()(
                         return { ...shaped, waterEntries: entries, waterIntake: sumWaterEntries(entries) };
                     }),
                 })),
-            clearAll: () =>
-                set({ stats: null, goal: null, logs: [], personalFoods: [], weightLog: [], email: '' }),
+            clearAll: () => {
+                localStorage.removeItem('vitalstrack-user-store');
+                set({ stats: null, goal: null, logs: [], personalFoods: [], weightLog: [], email: '' });
+            },
         }),
-        { name: 'vitalstrack-user-store' }
+        {
+            name: 'vitalstrack-user-store',
+            merge: (persistedState, currentState) => {
+                const persisted = persistedState as Partial<UserStoreState> | undefined;
+                if (!persisted) return currentState;
+                const merged = { ...currentState, ...persisted } as UserStoreState;
+                if (!Array.isArray(persisted.personalFoods) || persisted.personalFoods.length === 0) {
+                    merged.personalFoods = currentState.personalFoods;
+                }
+                return merged;
+            },
+        }
     )
 );
 

@@ -44,7 +44,7 @@ export function OnboardingStep1({
             <div className="grid grid-cols-2 gap-4">
                 <label className="block space-y-1.5">
                     <span className={`text-sm font-medium ${T.title}`}>{t('Adın', 'Your Name')}</span>
-                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputCls} placeholder="Nurdan" />
+                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputCls} placeholder={t('İsim', 'Name')} />
                 </label>
 
                 <label className="block space-y-1.5">

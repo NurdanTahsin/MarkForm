@@ -7,7 +7,6 @@ import {
     mealLabel,
     todayString,
     toNumber,
-    BUILTIN_FOODS,
 } from '../../../constants/dashboardConstants';
 import type { MealKey } from '../../../constants/dashboardConstants';
 import { FoodLibraryModal } from '../FoodLibraryModal';
@@ -126,8 +125,7 @@ export function FoodSection({ targetDate }: Readonly<Props>) {
 
     const handleAddSmart = () => {
         setSmartError('');
-        const combinedLibrary = [...BUILTIN_FOODS, ...personalFoods];
-        const { food, amount, error } = parseFoodInput(smartText, combinedLibrary);
+        const { food, amount, error } = parseFoodInput(smartText, personalFoods);
 
         if (error || !food) {
             setSmartError(error || t('Bir hata oluştu.', 'An error occurred.'));

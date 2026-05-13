@@ -3,13 +3,12 @@ import { createPortal } from 'react-dom';
 import { Edit2, X, Trash2 } from 'lucide-react';
 import type { FoodItem, FoodUnit } from '../../types';
 import { useActiveTheme, useUserStore } from '../../store/useUserStore';
-import { BUILTIN_FOODS, toNumber } from '../../constants/dashboardConstants';
+import { toNumber } from '../../constants/dashboardConstants';
 import { useToastStore } from '../../store/useToastStore';
 import type { DashTheme } from '../../constants/themes';
 
 interface FoodListItemProps {
     food: FoodItem;
-    isBuiltin: boolean;
     onSelect?: (food: FoodItem) => void;
     handleEdit: (food: FoodItem) => void;
     handleDelete: (id: string) => void;
@@ -17,7 +16,7 @@ interface FoodListItemProps {
     t: (tr: string, en: string) => string;
 }
 
-function FoodListItem({ food, isBuiltin, onSelect, handleEdit, handleDelete, T, t }: Readonly<FoodListItemProps>) {
+function FoodListItem({ food, onSelect, handleEdit, handleDelete, T, t }: Readonly<FoodListItemProps>) {
     const content = (
         <>
             <div className="flex-1 min-w-0">
@@ -41,31 +40,27 @@ function FoodListItem({ food, isBuiltin, onSelect, handleEdit, handleDelete, T, 
                 </p>
             </div>
             <div className="ml-3 flex items-center gap-1 shrink-0">
-                {!isBuiltin && (
-                    <button
-                        type="button"
-                        aria-label={t('Düzenle', 'Edit')}
-                        onClick={(e) => { e.stopPropagation(); handleEdit(food); }}
-                        className={`grid h-8 w-8 place-items-center rounded-full border ${T.cardBorder} ${T.title} transition ${T.dropdownBg}`}
-                    >
-                        <Edit2 className="h-3.5 w-3.5" strokeWidth={2.25} />
-                    </button>
-                )}
-                {!isBuiltin && (
-                    <button
-                        type="button"
-                        aria-label={t('Sil', 'Delete')}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            if (globalThis.confirm(t('Bu besini kütüphaneden silmek istediğinize emin misiniz?', 'Are you sure you want to delete this food from library?'))) {
-                                handleDelete(food.id);
-                            }
-                        }}
-                        className="grid h-8 w-8 place-items-center rounded-full bg-rose-500/10 text-rose-500 transition hover:bg-rose-500/20 hover:scale-105 active:scale-95"
-                    >
-                        <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                )}
+                <button
+                    type="button"
+                    aria-label={t('Düzenle', 'Edit')}
+                    onClick={(e) => { e.stopPropagation(); handleEdit(food); }}
+                    className={`grid h-8 w-8 place-items-center rounded-full border ${T.cardBorder} ${T.title} transition ${T.dropdownBg}`}
+                >
+                    <Edit2 className="h-3.5 w-3.5" strokeWidth={2.25} />
+                </button>
+                <button
+                    type="button"
+                    aria-label={t('Sil', 'Delete')}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if (globalThis.confirm(t('Bu besini kütüphaneden silmek istediğinize emin misiniz?', 'Are you sure you want to delete this food from library?'))) {
+                            handleDelete(food.id);
+                        }
+                    }}
+                    className="grid h-8 w-8 place-items-center rounded-full bg-rose-500/10 text-rose-500 transition hover:bg-rose-500/20 hover:scale-105 active:scale-95"
+                >
+                    <Trash2 className="h-3.5 w-3.5" />
+                </button>
             </div>
         </>
     );
@@ -114,10 +109,7 @@ export function FoodLibraryModal({ open, onClose, onSelect }: Readonly<Props>) {
     const [libFat, setLibFat] = useState('');
     const [editingFood, setEditingFood] = useState<FoodItem | null>(null);
 
-    const libraryFoods = useMemo(() => {
-        const builtinIds = new Set(BUILTIN_FOODS.map((f) => f.id));
-        return [...BUILTIN_FOODS, ...personalFoods.filter((f) => !builtinIds.has(f.id))];
-    }, [personalFoods]);
+    const libraryFoods = useMemo(() => personalFoods, [personalFoods]);
 
     const resetForm = () => {
         setLibName('');
@@ -291,21 +283,17 @@ export function FoodLibraryModal({ open, onClose, onSelect }: Readonly<Props>) {
                         {/* Food list */}
                         <div className="space-y-2">
                             <p className={`text-xs font-semibold uppercase tracking-wide ${T.subtitle}`}>{t('Kayıtlı Besinler', 'Saved Foods')}</p>
-                            {libraryFoods.map((food) => {
-                                const isBuiltin = BUILTIN_FOODS.some((b) => b.id === food.id);
-                                return (
-                                    <FoodListItem
-                                        key={food.id}
-                                        food={food}
-                                        isBuiltin={isBuiltin}
-                                        onSelect={onSelect ? handleSelect : undefined}
-                                        handleEdit={handleEdit}
-                                        handleDelete={handleDelete}
-                                        T={T}
-                                        t={t}
-                                    />
-                                );
-                            })}
+                            {libraryFoods.map((food) => (
+                                <FoodListItem
+                                    key={food.id}
+                                    food={food}
+                                    onSelect={onSelect ? handleSelect : undefined}
+                                    handleEdit={handleEdit}
+                                    handleDelete={handleDelete}
+                                    T={T}
+                                    t={t}
+                                />
+                            ))}
                         </div>
                     </div>
                 </div>

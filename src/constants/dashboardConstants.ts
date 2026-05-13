@@ -15,7 +15,8 @@ import {
     Wine,
     Zap,
 } from 'lucide-react';
-import type { FoodItem } from '../types';
+import type { FoodItem, FoodUnit } from '../types';
+import foodsCsv from '../../besin-listesi.csv?raw';
 
 export type MealKey = 'kahvalti' | 'ogle' | 'aksam' | 'atistirmalik';
 export type EntryMode = 'library' | 'manual';
@@ -57,14 +58,128 @@ export const EXERCISE_OPTIONS: Array<{ key: string; labelTr: string; labelEn: st
     { key: 'manual', labelTr: 'Manuel', labelEn: 'Manual', icon: Plus },
 ];
 
-export const BUILTIN_FOODS: FoodItem[] = [
-    { id: 'kofte', name: 'Köfte', kcal: 180, protein: 14, carb: 4, fat: 12, unit: 'porsiyon' },
-    { id: 'tavuk', name: 'Tavuk', kcal: 165, protein: 31, carb: 0, fat: 4, unit: 'porsiyon' },
-    { id: 'yogurt', name: 'Yoğurt', kcal: 90, protein: 5, carb: 8, fat: 3, unit: 'porsiyon' },
-    { id: 'yumurta', name: 'Yumurta', kcal: 70, protein: 6, carb: 0, fat: 5, unit: 'porsiyon' },
-    { id: 'pilav', name: 'Pilav (100g)', kcal: 130, protein: 3, carb: 28, fat: 1, unit: 'gram' },
-    { id: 'ekmek', name: 'Ekmek', kcal: 80, protein: 3, carb: 15, fat: 1, unit: 'porsiyon' },
-];
+type CsvState = {
+    rows: string[][];
+    row: string[];
+    field: string;
+    inQuotes: boolean;
+    skipNext: boolean;
+};
+
+function pushField(state: CsvState): void {
+    state.row.push(state.field.trim());
+    state.field = '';
+}
+
+function pushRow(state: CsvState): void {
+    pushField(state);
+    state.rows.push(state.row);
+    state.row = [];
+}
+
+function handleEscapedQuote(nextChar: string | undefined, state: CsvState): boolean {
+    if (state.inQuotes && nextChar === '"') {
+        state.field += '"';
+        state.skipNext = true;
+        return true;
+    }
+    return false;
+}
+
+function handleDelimiter(ch: string, state: CsvState): boolean {
+    if (!state.inQuotes && ch === ',') {
+        pushField(state);
+        return true;
+    }
+    if (!state.inQuotes && ch === '\n') {
+        pushRow(state);
+        return true;
+    }
+    return false;
+}
+
+function processCsvChar(ch: string, nextChar: string | undefined, state: CsvState): void {
+    if (state.skipNext) {
+        state.skipNext = false;
+        return;
+    }
+
+    if (ch === '\r') return;
+
+    if (ch === '"') {
+        if (!handleEscapedQuote(nextChar, state)) {
+            state.inQuotes = !state.inQuotes;
+        }
+        return;
+    }
+
+    if (handleDelimiter(ch, state)) return;
+
+    state.field += ch;
+}
+
+function parseCsvRows(csv: string): string[][] {
+    const state: CsvState = { rows: [], row: [], field: '', inQuotes: false, skipNext: false };
+
+    for (let i = 0; i < csv.length; i += 1) {
+        processCsvChar(csv[i], csv[i + 1], state);
+    }
+
+    if (state.field.length > 0 || state.row.length > 0) {
+        pushRow(state);
+    }
+
+    return state.rows.filter((r) => r.some((cell) => cell.length > 0));
+}
+
+function normalizeHeader(value: string): string {
+    return value
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+}
+
+function normalizeNumber(value: string | undefined): number {
+    if (!value) return 0;
+    const cleaned = value.trim().replace(/\s+/g, '').replace(',', '.');
+    const parsed = Number(cleaned);
+    return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function parseFoodCsv(csv: string): FoodItem[] {
+    const rows = parseCsvRows(csv.trim());
+    if (rows.length <= 1) return [];
+
+    const header = rows[0].map(normalizeHeader);
+    const nameIndex = header.findIndex((h) => h.includes('isim'));
+    const amountIndex = header.findIndex((h) => h.includes('miktar'));
+    const kcalIndex = header.findIndex((h) => h.includes('kalori'));
+    const carbIndex = header.findIndex((h) => h.includes('karbonhidrat'));
+    const proteinIndex = header.findIndex((h) => h.includes('protein'));
+    const fatIndex = header.findIndex((h) => h.includes('yag'));
+
+    return rows.slice(1).reduce<FoodItem[]>((acc, row, idx) => {
+        const name = row[nameIndex]?.trim();
+        if (!name) return acc;
+        const amount = row[amountIndex] ?? '';
+        const unit: FoodUnit = /\b(gr|gram)\b/i.test(amount) ? 'gram' : 'porsiyon';
+
+        acc.push({
+            id: `csv-${idx + 1}`,
+            name,
+            kcal: normalizeNumber(row[kcalIndex]),
+            carb: normalizeNumber(row[carbIndex]),
+            protein: normalizeNumber(row[proteinIndex]),
+            fat: normalizeNumber(row[fatIndex]),
+            unit,
+        });
+
+        return acc;
+    }, []);
+}
+
+export const DEFAULT_FOODS: FoodItem[] = parseFoodCsv(foodsCsv);
 
 export function mealLabel(mealKey: MealKey, language: AppLanguage): string {
     const meal = MEAL_META.find((entry) => entry.key === mealKey);

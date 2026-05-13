@@ -1,6 +1,7 @@
 import type { DashTheme } from '../../constants/themes';
 import { ProfileField } from './ProfileField';
 import type { ProfileCopy, ProfileLanguage } from './profileCopy';
+import { useAuthStore } from '../../store/useAuthStore';
 
 interface Props {
     theme: DashTheme;
@@ -39,6 +40,8 @@ export function ProfileSettingsSection({
     onCycleLengthChange,
     maxPeriodDate,
 }: Props) {
+    const { session, isGuest, signOut } = useAuthStore();
+
     return (
         <section className={`rounded-3xl border p-5 shadow-sm ${theme.cardBorder} ${theme.cardBg}`}>
             <div className="mb-4">
@@ -106,6 +109,40 @@ export function ProfileSettingsSection({
                         ) : null}
                     </div>
                 ) : null}
+
+                {/* Hesap / Çıkış */}
+                <div className={`rounded-2xl border px-4 py-3 space-y-2 ${theme.cardBorder} ${theme.mutedSurface}`}>
+                    {session ? (
+                        <>
+                            <p className={`text-xs ${theme.subtitle}`}>
+                                Giriş yapılan hesap: <span className="font-semibold">{session.user.email}</span>
+                            </p>
+                            <button
+                                id="profile-sign-out-btn"
+                                type="button"
+                                onClick={() => signOut()}
+                                className="w-full py-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-sm font-semibold hover:bg-rose-100 active:scale-95 transition-all"
+                            >
+                                Çıkış Yap
+                            </button>
+                        </>
+                    ) : isGuest ? (
+                        <>
+                            <p className={`text-xs ${theme.subtitle}`}>
+                                Misafir modundasın — veriler yalnızca bu cihazda saklanır.
+                            </p>
+                            <button
+                                id="profile-create-account-btn"
+                                type="button"
+                                onClick={() => signOut()}
+                                className={`w-full py-2.5 rounded-xl text-sm font-semibold active:scale-95 transition-all ${theme.accentBtn}`}
+                            >
+                                Hesap Oluştur / Giriş Yap
+                            </button>
+                        </>
+                    ) : null}
+                </div>
+
             </div>
         </section>
     );

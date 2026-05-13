@@ -45,7 +45,7 @@ export function WaterSection({ targetDate }: { targetDate?: string }) {
                             key={opt.value}
                             type="button"
                             onClick={() => { setSelectedWaterPreset(opt.value); setShowWaterManual(false); }}
-                            className={`flex flex-col items-center gap-1.5 rounded-2xl border px-3 py-4 text-sm font-semibold transition bg-transparent border-blue-500 text-blue-500 hover:bg-blue-500/10 hover:scale-105 active:scale-95 ${isSelected ? 'bg-blue-500/20 shadow-inner' : ''}`}
+                            className={`flex flex-col items-center gap-1.5 rounded-2xl border px-3 py-4 text-sm font-semibold transition ${isSelected ? T.accentBtn : `${T.cardBorder} ${T.dropdownBg} ${T.title}`}`}
                         >
                             <Icon className="h-5 w-5" strokeWidth={1.8} />
                             <span className="text-xs">{language === 'tr' ? opt.labelTr : opt.labelEn}</span>
@@ -55,7 +55,7 @@ export function WaterSection({ targetDate }: { targetDate?: string }) {
                 <button
                     type="button"
                     onClick={() => { setShowWaterManual((p) => !p); setSelectedWaterPreset(null); }}
-                    className={`flex flex-col items-center gap-1.5 rounded-2xl border px-3 py-4 text-sm font-semibold transition bg-transparent border-blue-500 text-blue-500 hover:bg-blue-500/10 hover:scale-105 active:scale-95 ${showWaterManual ? 'bg-blue-500/20 shadow-inner' : ''}`}
+                    className={`flex flex-col items-center gap-1.5 rounded-2xl border px-3 py-4 text-sm font-semibold transition ${showWaterManual ? T.accentBtn : `${T.cardBorder} ${T.dropdownBg} ${T.title}`}`}
                 >
                     <Plus className="h-5 w-5" strokeWidth={1.8} />
                     <span className="text-xs">{t('Manuel', 'Manual')}</span>
