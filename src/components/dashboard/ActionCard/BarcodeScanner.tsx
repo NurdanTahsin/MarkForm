@@ -22,7 +22,7 @@ export function BarcodeScanner({ onScan, onClose }: { onScan: (b: string) => voi
             fps: 20,
             // Kutuyu biraz büyütmek odaklamayı rahatlatır
             qrbox: { width: 280, height: 180 },
-            aspectRatio: 1.0,
+            aspectRatio: 1,
             // Sadece EAN-13 ve benzeri standartları destekle ki ilk rakamı atlayıp UPC-A sanmasın
             formatsToSupport: [
                 Html5QrcodeSupportedFormats.EAN_13,
@@ -67,8 +67,13 @@ export function BarcodeScanner({ onScan, onClose }: { onScan: (b: string) => voi
     };
 
     return createPortal(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={onClose} />
+        <div className="fixed inset-0 z-200 flex items-center justify-center p-4">
+            <button
+                type="button"
+                aria-label={t('Kapat', 'Close')}
+                className="absolute inset-0 bg-black/90 backdrop-blur-md"
+                onClick={onClose}
+            />
 
             <div className={`relative w-full max-w-md rounded-3xl ${T.cardBg} border ${T.cardBorder} shadow-2xl overflow-hidden z-10`}>
                 {/* Header */}
@@ -77,7 +82,7 @@ export function BarcodeScanner({ onScan, onClose }: { onScan: (b: string) => voi
                         <Camera className={`h-5 w-5 ${T.accent}`} />
                         <span className={`font-bold ${T.title}`}>{t('Barkod Okut', 'Scan Barcode')}</span>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full">
+                    <button type="button" onClick={onClose} aria-label={t('Kapat', 'Close')} className="p-2 hover:bg-white/10 rounded-full">
                         <X className={T.title} />
                     </button>
                 </div>
@@ -90,7 +95,9 @@ export function BarcodeScanner({ onScan, onClose }: { onScan: (b: string) => voi
 
                         {/* Flash Butonu - Odaklama için kritik */}
                         <button
+                            type="button"
                             onClick={toggleFlash}
+                            aria-label={isFlashOn ? t('Feneri kapat', 'Turn off flashlight') : t('Feneri aç', 'Turn on flashlight')}
                             className="absolute bottom-4 right-4 p-3 bg-black/50 backdrop-blur-md border border-white/20 rounded-full z-20"
                         >
                             {isFlashOn ? <Zap className="text-yellow-400" /> : <ZapOff className="text-white" />}

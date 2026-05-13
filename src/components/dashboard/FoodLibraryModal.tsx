@@ -5,6 +5,91 @@ import type { FoodItem, FoodUnit } from '../../types';
 import { useActiveTheme, useUserStore } from '../../store/useUserStore';
 import { BUILTIN_FOODS, toNumber } from '../../constants/dashboardConstants';
 import { useToastStore } from '../../store/useToastStore';
+import type { DashTheme } from '../../constants/themes';
+
+interface FoodListItemProps {
+    food: FoodItem;
+    isBuiltin: boolean;
+    onSelect?: (food: FoodItem) => void;
+    handleEdit: (food: FoodItem) => void;
+    handleDelete: (id: string) => void;
+    T: DashTheme;
+    t: (tr: string, en: string) => string;
+}
+
+function FoodListItem({ food, isBuiltin, onSelect, handleEdit, handleDelete, T, t }: Readonly<FoodListItemProps>) {
+    const content = (
+        <>
+            <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                    <p className={`text-sm font-semibold ${T.title} truncate`}>{food.name}</p>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${food.unit === 'gram'
+                        ? 'bg-slate-200 text-slate-700'
+                        : 'bg-slate-100 text-slate-600'
+                        }`}>
+                        {food.unit === 'gram' ? t('gram', 'gram') : t('porsiyon', 'portion')}
+                    </span>
+                </div>
+                <p className={`text-[11px] ${T.subtitle}`}>
+                    <span className="font-bold text-[#0A7C6E]">{food.unit === 'gram' ? '100 gr' : '1 adet'}: {Math.round(food.kcal)} kcal</span>
+                    <span className="mx-1.5 text-slate-300">|</span>
+                    <span className="text-rose-500 font-semibold">P: {Math.round(food.protein)}g</span>
+                    <span className="mx-1.5 text-slate-300">|</span>
+                    <span className="text-amber-500 font-semibold">K: {Math.round(food.carb)}g</span>
+                    <span className="mx-1.5 text-slate-300">|</span>
+                    <span className="text-indigo-500 font-semibold">Y: {Math.round(food.fat)}g</span>
+                </p>
+            </div>
+            <div className="ml-3 flex items-center gap-1 shrink-0">
+                {!isBuiltin && (
+                    <button
+                        type="button"
+                        aria-label={t('Düzenle', 'Edit')}
+                        onClick={(e) => { e.stopPropagation(); handleEdit(food); }}
+                        className={`grid h-8 w-8 place-items-center rounded-full border ${T.cardBorder} ${T.title} transition ${T.dropdownBg}`}
+                    >
+                        <Edit2 className="h-3.5 w-3.5" strokeWidth={2.25} />
+                    </button>
+                )}
+                {!isBuiltin && (
+                    <button
+                        type="button"
+                        aria-label={t('Sil', 'Delete')}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (globalThis.confirm(t('Bu besini kütüphaneden silmek istediğinize emin misiniz?', 'Are you sure you want to delete this food from library?'))) {
+                                handleDelete(food.id);
+                            }
+                        }}
+                        className="grid h-8 w-8 place-items-center rounded-full bg-rose-500/10 text-rose-500 transition hover:bg-rose-500/20 hover:scale-105 active:scale-95"
+                    >
+                        <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                )}
+            </div>
+        </>
+    );
+
+    const baseClass = `flex items-center justify-between rounded-2xl border px-4 py-3 ${T.cardBorder} ${T.dropdownBg}`;
+
+    if (onSelect) {
+        return (
+            <button
+                type="button"
+                className={`${baseClass} cursor-pointer transition w-full text-left`}
+                onClick={() => onSelect(food)}
+            >
+                {content}
+            </button>
+        );
+    }
+
+    return (
+        <div className={baseClass}>
+            {content}
+        </div>
+    );
+}
 
 interface Props {
     open: boolean;
@@ -12,7 +97,7 @@ interface Props {
     onSelect?: (food: FoodItem) => void;
 }
 
-export function FoodLibraryModal({ open, onClose, onSelect }: Props) {
+export function FoodLibraryModal({ open, onClose, onSelect }: Readonly<Props>) {
     const T = useActiveTheme();
     const language = useUserStore((s) => s.language);
     const t = (tr: string, en: string) => (language === 'tr' ? tr : en);
@@ -54,7 +139,7 @@ export function FoodLibraryModal({ open, onClose, onSelect }: Props) {
         const kcal = toNumber(libKcal);
         if (!name || kcal <= 0) return;
         addFoodToLibrary({
-            id: editingFood?.id ?? `lib-${name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`,
+            id: editingFood?.id ?? `lib-${name.toLowerCase().replaceAll(/\s+/g, '-')}-${Date.now()}`,
             name, kcal, unit: libUnit,
             protein: toNumber(libProtein),
             carb: toNumber(libCarb),
@@ -91,8 +176,9 @@ export function FoodLibraryModal({ open, onClose, onSelect }: Props) {
     };
 
     const editingForm = (
-        <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/55 backdrop-blur-sm p-4 sm:p-6" onClick={(e) => { if (e.target === e.currentTarget) resetForm(); }}>
-            <div className={`w-full max-w-lg rounded-3xl shadow-2xl ${T.dropdownBg} ${T.cardBorder}`}>
+        <div className="fixed inset-0 z-500 flex items-center justify-center p-4 sm:p-6">
+            <button type="button" aria-label={t('Kapat', 'Close')} className="absolute inset-0 w-full h-full cursor-default bg-black/55 backdrop-blur-sm z-[-1]" onClick={resetForm} tabIndex={-1} />
+            <div className={`relative w-full max-w-lg rounded-3xl shadow-2xl ${T.dropdownBg} ${T.cardBorder}`}>
                 <div className={`flex items-center justify-between border-b px-5 py-4 ${T.dropdownBg} ${T.cardBorder}`}>
                     <h2 className={`text-base font-bold ${T.title}`}>
                         {t('Besini Düzenle', 'Edit Food')}
@@ -112,7 +198,7 @@ export function FoodLibraryModal({ open, onClose, onSelect }: Props) {
                                     key={u}
                                     type="button"
                                     onClick={() => setLibUnit(u)}
-                                    className={`flex-1 rounded-xl py-2 text-sm font-semibold transition ${libUnit === u ? T.accentBtn : `border ${T.cardBorder} ${T.dropdownBg} ${T.title}`}`}
+                                    className={`flex-1 rounded-xl py-2 text-sm font-semibold transition ${libUnit === u ? T.accentBtn : 'border ' + T.cardBorder + ' ' + T.dropdownBg + ' ' + T.title}`}
                                 >
                                     {u === 'porsiyon' ? t('1 porsiyon bazlı', 'Per 1 portion') : t('100 gram bazlı', 'Per 100 grams')}
                                 </button>
@@ -155,11 +241,9 @@ export function FoodLibraryModal({ open, onClose, onSelect }: Props) {
         editingFood ? (
             editingForm
         ) : (
-            <div
-                className="fixed inset-0 z-[500] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 sm:p-6"
-                onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
-            >
-                <div className={`w-full flex flex-col max-w-lg max-h-[80vh] rounded-3xl shadow-2xl overflow-hidden ${T.dropdownBg} ${T.cardBorder}`}>
+            <div className="fixed inset-0 z-500 flex items-center justify-center p-4 sm:p-6">
+                <button type="button" aria-label={t('Kapat', 'Close')} className="absolute inset-0 w-full h-full cursor-default bg-black/40 backdrop-blur-sm z-[-1]" onClick={handleClose} tabIndex={-1} />
+                <div className={`relative w-full flex flex-col max-w-lg max-h-[80vh] rounded-3xl shadow-2xl overflow-hidden ${T.dropdownBg} ${T.cardBorder}`}>
                     <div className={`shrink-0 flex items-center justify-between border-b px-5 py-4 ${T.dropdownBg} ${T.cardBorder}`}>
                         <h2 className={`text-base font-bold ${T.title}`}>
                             {onSelect ? t('Besin Seç', 'Select Food') : t('Yemek Listesi', 'Food Library')}
@@ -180,7 +264,7 @@ export function FoodLibraryModal({ open, onClose, onSelect }: Props) {
                                         key={u}
                                         type="button"
                                         onClick={() => setLibUnit(u)}
-                                        className={`flex-1 rounded-xl py-2 text-sm font-semibold transition ${libUnit === u ? T.accentBtn : `border ${T.cardBorder} ${T.dropdownBg} ${T.title}`}`}
+                                        className={`flex-1 rounded-xl py-2 text-sm font-semibold transition ${libUnit === u ? T.accentBtn : 'border ' + T.cardBorder + ' ' + T.dropdownBg + ' ' + T.title}`}
                                     >
                                         {u === 'porsiyon' ? t('1 porsiyon bazlı', 'Per 1 portion') : t('100 gram bazlı', 'Per 100 grams')}
                                     </button>
@@ -210,59 +294,16 @@ export function FoodLibraryModal({ open, onClose, onSelect }: Props) {
                             {libraryFoods.map((food) => {
                                 const isBuiltin = BUILTIN_FOODS.some((b) => b.id === food.id);
                                 return (
-                                    <div
+                                    <FoodListItem
                                         key={food.id}
-                                        className={`flex items-center justify-between rounded-2xl border px-4 py-3 ${T.cardBorder} ${T.dropdownBg} ${onSelect ? 'cursor-pointer transition' : ''}`}
-                                        onClick={onSelect ? () => handleSelect(food) : undefined}
-                                    >
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <p className={`text-sm font-semibold ${T.title} truncate`}>{food.name}</p>
-                                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${food.unit === 'gram'
-                                                        ? 'bg-slate-200 text-slate-700'
-                                                        : 'bg-slate-100 text-slate-600'
-                                                    }`}>
-                                                    {food.unit === 'gram' ? t('gram', 'gram') : t('porsiyon', 'portion')}
-                                                </span>
-                                            </div>
-                                            <p className={`text-[11px] ${T.subtitle}`}>
-                                                <span className="font-bold text-[#0A7C6E]">{food.unit === 'gram' ? '100 gr' : '1 adet'}: {Math.round(food.kcal)} kcal</span>
-                                                <span className="mx-1.5 text-slate-300">|</span>
-                                                <span className="text-rose-500 font-semibold">P: {Math.round(food.protein)}g</span>
-                                                <span className="mx-1.5 text-slate-300">|</span>
-                                                <span className="text-amber-500 font-semibold">K: {Math.round(food.carb)}g</span>
-                                                <span className="mx-1.5 text-slate-300">|</span>
-                                                <span className="text-indigo-500 font-semibold">Y: {Math.round(food.fat)}g</span>
-                                            </p>
-                                        </div>
-                                        <div className="ml-3 flex items-center gap-1 shrink-0">
-                                            {!isBuiltin && (
-                                                <button
-                                                    type="button"
-                                                    aria-label={t('Düzenle', 'Edit')}
-                                                    onClick={(e) => { e.stopPropagation(); handleEdit(food); }}
-                                                    className={`grid h-8 w-8 place-items-center rounded-full border ${T.cardBorder} ${T.title} transition ${T.dropdownBg}`}
-                                                >
-                                                    <Edit2 className="h-3.5 w-3.5" strokeWidth={2.25} />
-                                                </button>
-                                            )}
-                                            {!isBuiltin && (
-                                                <button
-                                                    type="button"
-                                                    aria-label={t('Sil', 'Delete')}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        if (window.confirm(t('Bu besini kütüphaneden silmek istediğinize emin misiniz?', 'Are you sure you want to delete this food from library?'))) {
-                                                            handleDelete(food.id);
-                                                        }
-                                                    }}
-                                                    className="grid h-8 w-8 place-items-center rounded-full bg-rose-500/10 text-rose-500 transition hover:bg-rose-500/20 hover:scale-105 active:scale-95"
-                                                >
-                                                    <Trash2 className="h-3.5 w-3.5" />
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
+                                        food={food}
+                                        isBuiltin={isBuiltin}
+                                        onSelect={onSelect ? handleSelect : undefined}
+                                        handleEdit={handleEdit}
+                                        handleDelete={handleDelete}
+                                        T={T}
+                                        t={t}
+                                    />
                                 );
                             })}
                         </div>
