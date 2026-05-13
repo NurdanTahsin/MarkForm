@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { DashTheme } from '../../constants/themes';
 import { ProfileField } from './ProfileField';
 import type { ProfileCopy, ProfileLanguage } from './profileCopy';
@@ -41,7 +42,7 @@ export function ProfileSettingsSection({
     maxPeriodDate,
 }: Readonly<Props>) {
     const { session, isGuest, signOut } = useAuthStore();
-    let accountContent: JSX.Element | null = null;
+    let accountContent: ReactNode = null;
 
     if (session) {
         accountContent = (

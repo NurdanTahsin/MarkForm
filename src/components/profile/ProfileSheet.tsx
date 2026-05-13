@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { LogOut, X, ChevronDown, User, Target, Heart } from 'lucide-react';
 import { resolveTheme, type DashTheme } from '../../constants/themes';
@@ -197,7 +198,7 @@ function ProfileSheetContent({ stats, goal, language, waterTarget, weightLog, ac
 
     const validationTitle = canSave ? '' : Object.values(validationErrors).join('\n');
 
-    let accountContent: JSX.Element | null = null;
+    let accountContent: ReactNode = null;
 
     if (session) {
         accountContent = (

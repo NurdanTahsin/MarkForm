@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/useAuthStore';
 import { useUserStore } from '../store/useUserStore';
+import type { WeightEntry } from '../store/useUserStore';
 
 const DEBOUNCE_MS = 1200;
 
@@ -74,7 +75,7 @@ function applyCloudToStore(profile: CloudProfile, logs: CloudLogRow[]) {
     }
 
     if (profile.weight_log) {
-        useUserStore.setState({ weightLog: profile.weight_log as import('../types').WeightEntry[] });
+        useUserStore.setState({ weightLog: profile.weight_log as WeightEntry[] });
     }
     if (profile.personal_foods) {
         useUserStore.setState({ personalFoods: profile.personal_foods as import('../types').FoodItem[] });
@@ -95,10 +96,10 @@ export function useSupabaseSync() {
     // ── PULL: cloud → store ────────────────────────────────────────────────
     useEffect(() => {
         if (!user || isGuest || didPullRef.current) return;
+        const userId = user.id;
         didPullRef.current = true;
 
         async function pull() {
-            const userId = user.id;
             const [profile, logs] = await Promise.all([
                 fetchProfile(userId),
                 fetchLogs(userId),
