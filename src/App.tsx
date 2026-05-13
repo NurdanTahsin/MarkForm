@@ -5,6 +5,7 @@ import Dashboard from './views/Dashboard';
 import Onboarding from './views/Onboarding';
 import LandingPage from './views/Landing/LandingPage';
 import { ToastContainer } from './components/ui/ToastContainer';
+import PwaInstallPrompt from './components/ui/PwaInstallPrompt';
 
 function AppContent() {
   useSupabaseSync();
@@ -41,11 +42,21 @@ function App() {
 
   // Giriş yapılmamış ve misafir değilse → Landing
   if (!session && !isGuest) {
-    return <LandingPage />;
+    return (
+      <>
+        <LandingPage />
+        <PwaInstallPrompt />
+      </>
+    );
   }
 
   // Giriş yapılmış veya misafir → uygulama
-  return <AppContent />;
+  return (
+    <>
+      <AppContent />
+      <PwaInstallPrompt />
+    </>
+  );
 }
 
 export default App;
