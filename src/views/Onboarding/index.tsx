@@ -28,7 +28,7 @@ export default function Onboarding() {
     const [step, setStep] = useState<WizardStep>(1);
 
     // Step 1 state
-    const [name, setName] = useState('Nurdan');
+    const [name, setName] = useState('');
     const [age, setAge] = useState('');
     const [height, setHeight] = useState('');
     const [currentWeight, setCurrentWeight] = useState('');
@@ -107,7 +107,11 @@ export default function Onboarding() {
 
     const canContinue = draftStats !== null;
     const canSave = draftStats !== null && draftGoal !== null;
-    const progressWidthClass = step === 1 ? 'w-1/3' : step === 2 ? 'w-2/3' : 'w-full';
+    const progressWidthClass = (() => {
+        if (step === 1) return 'w-1/3';
+        if (step === 2) return 'w-2/3';
+        return 'w-full';
+    })();
 
     const buildStatsPayload = () => {
         if (!draftStats) return null;

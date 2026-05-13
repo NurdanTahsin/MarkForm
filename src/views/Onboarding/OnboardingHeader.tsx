@@ -7,13 +7,13 @@ interface Props {
     activeTheme: DashTheme;
 }
 
-export function OnboardingHeader({ language, step, activeTheme: T }: Props) {
+export function OnboardingHeader({ language, step, activeTheme: T }: Readonly<Props>) {
     const setLanguage = useUserStore((s) => s.setLanguage);
     const t = (tr: string, en: string) => (language === 'tr' ? tr : en);
 
     return (
         <header className="mb-6">
-            <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${T.accent}`}>VitalsTrack</p>
+            <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${T.accent}`}>MarkForm</p>
             <h1 className={`mt-2 text-2xl font-bold ${T.title}`}>
                 {t('Sana özel dengeli bir plan hazırlayalım', 'Let us build your balanced plan')}
             </h1>

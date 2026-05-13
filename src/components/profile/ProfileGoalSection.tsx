@@ -67,7 +67,7 @@ export function ProfileGoalSection({
     onSelectedMonthOffsetChange,
     onWeeklySportQuotaChange,
     onWaterTargetChange,
-}: Props) {
+}: Readonly<Props>) {
     return (
         <section className={`rounded-3xl border p-5 shadow-sm ${theme.cardBorder} ${theme.cardBg}`}>
             <div className="mb-4">
@@ -76,49 +76,84 @@ export function ProfileGoalSection({
 
             <div className="grid gap-3 sm:grid-cols-3">
                 <ProfileField label={copy.weight} unit="kg" theme={theme} error={errors.weight}>
-                    <input type="number" min="1" value={weightValue} onChange={(event) => onWeightChange(event.target.value)} className={inputClassName} />
+                    <input type="number" min="1" value={weightValue} onChange={(event) => onWeightChange(event.target.value)} className={inputClassName} title={copy.weight} />
                 </ProfileField>
                 <ProfileField label={copy.height} unit="cm" theme={theme} error={errors.height}>
-                    <input type="number" min="1" value={heightValue} onChange={(event) => onHeightChange(event.target.value)} className={inputClassName} />
+                    <input type="number" min="1" value={heightValue} onChange={(event) => onHeightChange(event.target.value)} className={inputClassName} title={copy.height} />
                 </ProfileField>
                 <ProfileField label={copy.age} theme={theme} error={errors.age}>
-                    <input type="number" min="1" value={ageValue} onChange={(event) => onAgeChange(event.target.value)} className={inputClassName} />
+                    <input type="number" min="1" value={ageValue} onChange={(event) => onAgeChange(event.target.value)} className={inputClassName} title={copy.age} />
                 </ProfileField>
             </div>
 
             <div className={`mt-4 rounded-2xl border ${theme.cardBorder} ${theme.mutedSurface}`}>
-                <button
-                    type="button"
-                    onClick={onToggleGoalOpen}
-                    aria-expanded={goalOpen}
-                    className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left"
-                >
-                    <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                            <div className={`grid h-9 w-9 place-items-center rounded-2xl ${theme.accentSoft} ${theme.accent}`}>
-                                <Target className="h-4 w-4" />
+                {goalOpen ? (
+                    <button
+                        type="button"
+                        onClick={onToggleGoalOpen}
+                        aria-expanded="true"
+                        className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left"
+                    >
+                        <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                                <div className={`grid h-9 w-9 place-items-center rounded-2xl ${theme.accentSoft} ${theme.accent}`}>
+                                    <Target className="h-4 w-4" />
+                                </div>
+                                <p className={`text-sm font-semibold ${theme.title}`}>{copy.goalEdit}</p>
                             </div>
-                            <p className={`text-sm font-semibold ${theme.title}`}>{copy.goalEdit}</p>
-                        </div>
-                        <div className="mt-3 flex flex-wrap gap-2">
-                            <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${theme.accentSoft} ${theme.accent}`}>
-                                {summaryTargetWeight}
-                            </span>
-                            <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${theme.mutedSurface} ${theme.subtitle}`}>
-                                {summaryTargetDate}
-                            </span>
-                            <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${theme.mutedSurface} ${theme.subtitle}`}>
-                                {copy.sportPerWeek} {summaryWeeklySportQuota} {copy.weekSuffix}
-                            </span>
-                            {caloriePreview ? (
+                            <div className="mt-3 flex flex-wrap gap-2">
                                 <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${theme.accentSoft} ${theme.accent}`}>
-                                    {caloriePreview}
+                                    {summaryTargetWeight}
                                 </span>
-                            ) : null}
+                                <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${theme.mutedSurface} ${theme.subtitle}`}>
+                                    {summaryTargetDate}
+                                </span>
+                                <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${theme.mutedSurface} ${theme.subtitle}`}>
+                                    {copy.sportPerWeek} {summaryWeeklySportQuota} {copy.weekSuffix}
+                                </span>
+                                {caloriePreview ? (
+                                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${theme.accentSoft} ${theme.accent}`}>
+                                        {caloriePreview}
+                                    </span>
+                                ) : null}
+                            </div>
                         </div>
-                    </div>
-                    <ChevronDown className={`h-5 w-5 shrink-0 transition ${goalOpen ? 'rotate-180' : ''} ${theme.subtitle}`} />
-                </button>
+                        <ChevronDown className={`h-5 w-5 shrink-0 transition rotate-180 ${theme.subtitle}`} />
+                    </button>
+                ) : (
+                    <button
+                        type="button"
+                        onClick={onToggleGoalOpen}
+                        aria-expanded="false"
+                        className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left"
+                    >
+                        <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                                <div className={`grid h-9 w-9 place-items-center rounded-2xl ${theme.accentSoft} ${theme.accent}`}>
+                                    <Target className="h-4 w-4" />
+                                </div>
+                                <p className={`text-sm font-semibold ${theme.title}`}>{copy.goalEdit}</p>
+                            </div>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${theme.accentSoft} ${theme.accent}`}>
+                                    {summaryTargetWeight}
+                                </span>
+                                <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${theme.mutedSurface} ${theme.subtitle}`}>
+                                    {summaryTargetDate}
+                                </span>
+                                <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${theme.mutedSurface} ${theme.subtitle}`}>
+                                    {copy.sportPerWeek} {summaryWeeklySportQuota} {copy.weekSuffix}
+                                </span>
+                                {caloriePreview ? (
+                                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${theme.accentSoft} ${theme.accent}`}>
+                                        {caloriePreview}
+                                    </span>
+                                ) : null}
+                            </div>
+                        </div>
+                        <ChevronDown className={`h-5 w-5 shrink-0 transition ${theme.subtitle}`} />
+                    </button>
+                )}
 
                 {goalOpen ? (
                     <div className={`space-y-4 border-t px-4 py-4 ${theme.cardBorder}`}>
@@ -130,6 +165,7 @@ export function ProfileGoalSection({
                                     value={targetWeightValue}
                                     onChange={(event) => onTargetWeightChange(event.target.value)}
                                     className={inputClassName}
+                                    title={copy.targetWeight}
                                 />
                             </ProfileField>
 
@@ -138,6 +174,7 @@ export function ProfileGoalSection({
                                     value={selectedMonthOffset}
                                     onChange={(event) => onSelectedMonthOffsetChange(Number(event.target.value))}
                                     className={inputClassName}
+                                    title={copy.duration}
                                 >
                                     {monthOptions.map((offset) => (
                                         <option key={offset} value={offset}>
@@ -157,6 +194,7 @@ export function ProfileGoalSection({
                                     value={weeklySportQuotaValue}
                                     onChange={(event) => onWeeklySportQuotaChange(event.target.value)}
                                     className={inputClassName}
+                                    title={copy.sportDays}
                                 />
                             </ProfileField>
 
@@ -168,6 +206,7 @@ export function ProfileGoalSection({
                                     value={waterTargetValue}
                                     onChange={(event) => onWaterTargetChange(event.target.value)}
                                     className={inputClassName}
+                                    title={copy.dailyWater}
                                 />
                             </ProfileField>
                         </div>

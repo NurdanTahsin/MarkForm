@@ -11,11 +11,11 @@ interface Props {
     copy: ProfileCopy;
 }
 
-export function WeightChart({ theme, data, timeRange, language, copy }: Props) {
+export function WeightChart({ theme, data, timeRange, language, copy }: Readonly<Props>) {
     const chartData = useMemo(() => {
         if (data.length === 0) return [];
         let filtered = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-        
+
         if (timeRange === 'month') {
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -42,17 +42,19 @@ export function WeightChart({ theme, data, timeRange, language, copy }: Props) {
 
     const width = 1000;
     const height = 300;
-    
+
     const points = chartData.map((d, i) => {
         const x = (i / (chartData.length - 1)) * width;
         const y = height - ((d.weight - yMin) / yRange) * height;
         return `${x},${y}`;
     }).join(' ');
 
-    const latest = chartData[chartData.length - 1];
-    const first = chartData[0];
+    const latest = chartData.at(-1)!;
+    const first = chartData.at(0)!;
     const weightDiff = latest.weight - first.weight;
-    const diffText = weightDiff > 0 ? `(+${weightDiff.toFixed(1)}kg)` : weightDiff < 0 ? `(${weightDiff.toFixed(1)}kg)` : '';
+    let diffText = '';
+    if (weightDiff > 0) diffText = `(+${weightDiff.toFixed(1)}kg)`;
+    else if (weightDiff < 0) diffText = `(${weightDiff.toFixed(1)}kg)`;
 
     const formatDateStr = (dateStr: string) => {
         return new Date(dateStr).toLocaleDateString(language === 'tr' ? 'tr-TR' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -76,61 +78,67 @@ export function WeightChart({ theme, data, timeRange, language, copy }: Props) {
             <div className="relative w-full pb-2">
                 <div className="relative h-48 w-full">
                     <svg viewBox={`0 0 ${width} ${height}`} className="h-full w-full overflow-visible preserve-3d" preserveAspectRatio="none">
-                    {/* Grid lines */}
-                    <line x1="0" y1="0" x2={width} y2="0" stroke="currentColor" strokeOpacity="0.1" className={theme.title} />
-                    <line x1="0" y1={height / 2} x2={width} y2={height / 2} stroke="currentColor" strokeOpacity="0.1" className={theme.title} />
-                    <line x1="0" y1={height} x2={width} y2={height} stroke="currentColor" strokeOpacity="0.1" className={theme.title} />
-                    
-                    {/* Line */}
-                    <polyline
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        points={points}
-                        className={theme.accent}
-                    />
+                        {/* Grid lines */}
+                        <line x1="0" y1="0" x2={width} y2="0" stroke="currentColor" strokeOpacity="0.1" className={theme.title} />
+                        <line x1="0" y1={height / 2} x2={width} y2={height / 2} stroke="currentColor" strokeOpacity="0.1" className={theme.title} />
+                        <line x1="0" y1={height} x2={width} y2={height} stroke="currentColor" strokeOpacity="0.1" className={theme.title} />
 
-                    {/* Data Points */}
-                    {chartData.map((d, i) => {
-                        const x = (i / (chartData.length - 1)) * width;
-                        const y = height - ((d.weight - yMin) / yRange) * height;
-                        
-                        const isFirst = i === 0;
-                        const isLast = i === chartData.length - 1;
-                        const step = Math.ceil(chartData.length / 7);
-                        const showLabel = isFirst || isLast || (i % step === 0);
+                        {/* Line */}
+                        <polyline
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            points={points}
+                            className={theme.accent}
+                        />
 
-                        return (
-                            <g key={d.id}>
-                                <circle
-                                    cx={x}
-                                    cy={y}
-                                    r="6"
-                                    fill="currentColor"
-                                    className={theme.accent}
-                                />
-                                {showLabel && (
-                                    <text
-                                        x={x}
-                                        y={y - 12}
-                                        textAnchor={isFirst ? 'start' : isLast ? 'end' : 'middle'}
-                                        stroke="white"
-                                        strokeWidth="5"
-                                        strokeLinejoin="round"
-                                        paintOrder="stroke"
+                        {/* Data Points */}
+                        {chartData.map((d, i) => {
+                            const x = (i / (chartData.length - 1)) * width;
+                            const y = height - ((d.weight - yMin) / yRange) * height;
+
+                            const isFirst = i === 0;
+                            const isLast = i === chartData.length - 1;
+                            const step = Math.ceil(chartData.length / 7);
+                            const showLabel = isFirst || isLast || (i % step === 0);
+                            let textAnchor: 'start' | 'end' | 'middle' = 'middle';
+                            if (isFirst) textAnchor = 'start';
+                            else if (isLast) textAnchor = 'end';
+
+                            return (
+                                <g key={d.id}>
+                                    <circle
+                                        cx={x}
+                                        cy={y}
+                                        r="6"
                                         fill="currentColor"
-                                        className={`${theme.title}`}
-                                        style={{ fontSize: isFirst || isLast ? '18px' : '14px', fontWeight: 'bold' }}
-                                    >
-                                        {d.weight}
-                                    </text>
-                                )}
-                            </g>
-                        );
-                    })}
-                </svg>
+                                        className={theme.accent}
+                                    />
+                                    {showLabel && (
+                                        <text
+                                            x={x}
+                                            y={y - 12}
+                                            textAnchor={textAnchor}
+                                            stroke="white"
+                                            strokeWidth="5"
+                                            strokeLinejoin="round"
+                                            paintOrder="stroke"
+                                            fill="currentColor"
+                                            className={[
+                                                theme.title,
+                                                'font-bold',
+                                                isFirst || isLast ? 'text-[18px]' : 'text-[14px]',
+                                            ].join(' ')}
+                                        >
+                                            {d.weight}
+                                        </text>
+                                    )}
+                                </g>
+                            );
+                        })}
+                    </svg>
                 </div>
             </div>
             <div className="mt-4 flex justify-between">

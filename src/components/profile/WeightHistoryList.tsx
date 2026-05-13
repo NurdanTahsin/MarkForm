@@ -10,6 +10,7 @@ export function WeightHistoryList() {
     const updateWeightEntry = useUserStore((s) => s.updateWeightEntry);
     const removeWeightEntry = useUserStore((s) => s.removeWeightEntry);
     const language = useUserStore((s) => s.language);
+    const t = (tr: string, en: string) => (language === 'tr' ? tr : en);
 
     const [isAdding, setIsAdding] = useState(false);
     const [newWeight, setNewWeight] = useState('');
@@ -20,8 +21,8 @@ export function WeightHistoryList() {
     const [editDate, setEditDate] = useState('');
 
     const handleAdd = () => {
-        const w = parseFloat(newWeight);
-        if (!isNaN(w) && w > 0 && newDate) {
+        const w = Number.parseFloat(newWeight);
+        if (!Number.isNaN(w) && w > 0 && newDate) {
             // we use mid-day time for ISO to avoid timezone shifts pushing it to previous day
             const isoDate = new Date(`${newDate}T12:00:00Z`).toISOString();
             addWeightEntry(w, isoDate);
@@ -38,8 +39,8 @@ export function WeightHistoryList() {
     };
 
     const handleSaveEdit = (id: string) => {
-        const w = parseFloat(editWeight);
-        if (!isNaN(w) && w > 0 && editDate) {
+        const w = Number.parseFloat(editWeight);
+        if (!Number.isNaN(w) && w > 0 && editDate) {
             const isoDate = new Date(`${editDate}T12:00:00Z`).toISOString();
             updateWeightEntry(id, w, isoDate);
             setEditingId(null);
@@ -68,6 +69,7 @@ export function WeightHistoryList() {
                         type="date"
                         value={newDate}
                         onChange={(e) => setNewDate(e.target.value)}
+                        title={t('Tarih', 'Date')}
                         className={`flex-1 rounded-xl px-3 py-2 text-sm outline-none border ${T.cardBorder} ${T.inputBg} ${T.title}`}
                     />
                     <input
@@ -75,9 +77,10 @@ export function WeightHistoryList() {
                         placeholder="kg"
                         value={newWeight}
                         onChange={(e) => setNewWeight(e.target.value)}
+                        title={t('Kilo (kg)', 'Weight (kg)')}
                         className={`w-20 rounded-xl px-3 py-2 text-sm outline-none border ${T.cardBorder} ${T.inputBg} ${T.title}`}
                     />
-                    <button type="button" onClick={handleAdd} className={`grid h-9 w-9 place-items-center rounded-xl transition ${T.accentBtn}`}>
+                    <button type="button" onClick={handleAdd} title={t('Kaydı ekle', 'Add entry')} className={`grid h-9 w-9 place-items-center rounded-xl transition ${T.accentBtn}`}>
                         <Check className="h-4 w-4" />
                     </button>
                 </div>
@@ -95,18 +98,20 @@ export function WeightHistoryList() {
                                         type="date"
                                         value={editDate}
                                         onChange={(e) => setEditDate(e.target.value)}
+                                        title={t('Tarih', 'Date')}
                                         className={`flex-1 rounded-xl px-2 py-1.5 text-sm outline-none border ${T.cardBorder} ${T.inputBg} ${T.title}`}
                                     />
                                     <input
                                         type="number"
                                         value={editWeight}
                                         onChange={(e) => setEditWeight(e.target.value)}
+                                        title={t('Kilo (kg)', 'Weight (kg)')}
                                         className={`w-16 rounded-xl px-2 py-1.5 text-sm outline-none border ${T.cardBorder} ${T.inputBg} ${T.title}`}
                                     />
-                                    <button type="button" onClick={() => handleSaveEdit(entry.id)} className={`text-emerald-500 hover:opacity-70 p-1`}>
+                                    <button type="button" onClick={() => handleSaveEdit(entry.id)} title={t('Kaydet', 'Save')} className={`text-emerald-500 hover:opacity-70 p-1`}>
                                         <Check className="h-4 w-4" />
                                     </button>
-                                    <button type="button" onClick={() => setEditingId(null)} className={`text-rose-500 hover:opacity-70 p-1`}>
+                                    <button type="button" onClick={() => setEditingId(null)} title={t('İptal', 'Cancel')} className={`text-rose-500 hover:opacity-70 p-1`}>
                                         <X className="h-4 w-4" />
                                     </button>
                                 </div>
@@ -122,6 +127,7 @@ export function WeightHistoryList() {
                                         <button
                                             type="button"
                                             onClick={() => startEdit(entry)}
+                                            title={t('Düzenle', 'Edit')}
                                             className={`grid h-8 w-8 place-items-center rounded-full transition ${T.mutedSurface} ${T.title} hover:opacity-70`}
                                         >
                                             <Pencil className="h-3.5 w-3.5" />
@@ -129,10 +135,11 @@ export function WeightHistoryList() {
                                         <button
                                             type="button"
                                             onClick={() => {
-                                                if (window.confirm(language === 'tr' ? 'Bu kilo kaydını silmek istediğinize emin misiniz?' : 'Are you sure you want to delete this weight record?')) {
+                                                if (globalThis.confirm(language === 'tr' ? 'Bu kilo kaydını silmek istediğinize emin misiniz?' : 'Are you sure you want to delete this weight record?')) {
                                                     removeWeightEntry(entry.id);
                                                 }
                                             }}
+                                            title={t('Sil', 'Delete')}
                                             className="grid h-8 w-8 place-items-center rounded-full text-rose-500 transition hover:bg-rose-50"
                                         >
                                             <Trash2 className="h-3.5 w-3.5" />

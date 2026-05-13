@@ -108,8 +108,14 @@ export function FoodLibraryModal({ open, onClose, onSelect }: Readonly<Props>) {
     const [libCarb, setLibCarb] = useState('');
     const [libFat, setLibFat] = useState('');
     const [editingFood, setEditingFood] = useState<FoodItem | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const libraryFoods = useMemo(() => personalFoods, [personalFoods]);
+    const filteredFoods = useMemo(() => {
+        const query = searchQuery.trim().toLowerCase();
+        if (!query) return libraryFoods;
+        return libraryFoods.filter((food) => food.name.toLowerCase().includes(query));
+    }, [libraryFoods, searchQuery]);
 
     const resetForm = () => {
         setLibName('');
@@ -283,17 +289,28 @@ export function FoodLibraryModal({ open, onClose, onSelect }: Readonly<Props>) {
                         {/* Food list */}
                         <div className="space-y-2">
                             <p className={`text-xs font-semibold uppercase tracking-wide ${T.subtitle}`}>{t('Kayıtlı Besinler', 'Saved Foods')}</p>
-                            {libraryFoods.map((food) => (
-                                <FoodListItem
-                                    key={food.id}
-                                    food={food}
-                                    onSelect={onSelect ? handleSelect : undefined}
-                                    handleEdit={handleEdit}
-                                    handleDelete={handleDelete}
-                                    T={T}
-                                    t={t}
-                                />
-                            ))}
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder={t('Besin ara...', 'Search foods...')}
+                                className={T.inputCls}
+                            />
+                            {filteredFoods.length === 0 ? (
+                                <p className={`text-xs ${T.subtitle}`}>{t('Eşleşen besin bulunamadı.', 'No matching foods found.')}</p>
+                            ) : (
+                                filteredFoods.map((food) => (
+                                    <FoodListItem
+                                        key={food.id}
+                                        food={food}
+                                        onSelect={onSelect ? handleSelect : undefined}
+                                        handleEdit={handleEdit}
+                                        handleDelete={handleDelete}
+                                        T={T}
+                                        t={t}
+                                    />
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>

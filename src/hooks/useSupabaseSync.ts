@@ -156,7 +156,6 @@ export function useSupabaseSync() {
         return () => {
             if (pushTimerRef.current) clearTimeout(pushTimerRef.current);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         user,
         isGuest,
