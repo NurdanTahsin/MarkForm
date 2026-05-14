@@ -76,7 +76,7 @@ export function TodaysLog() {
         setEditingFoodAmount('');
     };
 
-    const saveEditFood = (mealKey: MealKey, item: FoodItem, storeLabel: string) => {
+    const saveEditFood = (item: FoodItem, storeLabel: string) => {
         const nextAmount = toNumber(editingFoodAmount);
         if (nextAmount <= 0) return;
         const meta = getAmountMeta(item);
@@ -157,7 +157,7 @@ export function TodaysLog() {
                                                             <div className="flex items-center gap-2">
                                                                 <button
                                                                     type="button"
-                                                                    onClick={() => saveEditFood(meal.key, item, meal.storeLabel)}
+                                                                    onClick={() => saveEditFood(item, meal.storeLabel)}
                                                                     className={`rounded-lg px-3 py-1 text-xs font-semibold text-white ${T.accentBtn}`}
                                                                 >
                                                                     {t('Kaydet', 'Save')}
