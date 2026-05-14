@@ -211,7 +211,7 @@ export function FoodSection({ targetDate }: Readonly<Props>) {
             </div>
 
             {/* 2. Öğün Seçici */}
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
                 {MEAL_META.map((meal) => {
                     const isActive = meal.key === selectedMeal;
                     const Icon = meal.icon;
@@ -220,11 +220,11 @@ export function FoodSection({ targetDate }: Readonly<Props>) {
                             key={meal.key}
                             type="button"
                             onClick={() => setSelectedMeal(meal.key)}
-                            className={`rounded-2xl border px-2 py-3.5 text-sm font-semibold transition ${mealTone(meal.key, isActive)}`}
+                            className={`rounded-xl border px-1.5 py-2 text-[10px] font-semibold leading-tight transition sm:rounded-2xl sm:px-2 sm:py-3 sm:text-sm ${mealTone(meal.key, isActive)}`}
                         >
                             <span className="flex flex-col items-center gap-1">
-                                <Icon className="h-4 w-4" strokeWidth={2} />
-                                <span className="text-[11px]">{mealLabel(meal.key, language)}</span>
+                                <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={2} />
+                                <span className="text-[10px] leading-tight sm:text-[11px]">{mealLabel(meal.key, language)}</span>
                             </span>
                         </button>
                     );

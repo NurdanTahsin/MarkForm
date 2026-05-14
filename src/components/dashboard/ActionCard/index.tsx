@@ -15,21 +15,27 @@ export function ActionCard() {
     return (
         <section className={`rounded-3xl border p-3 sm:p-4 ${T.cardBg} ${T.cardBorder} shadow-sm`}>
             {/* Section tabs */}
-            <div className="grid grid-cols-2 gap-2 mb-3 sm:grid-cols-3">
+            <div className="grid grid-cols-3 gap-1.5 mb-3 sm:gap-2">
                 {([
-                    { key: 'food', label: t('Yemek Ekle', 'Add Food') },
+                    { key: 'food', label: t('Yemek +', 'Add Food') },
                     { key: 'water', label: t('Su Ekle', 'Add Water') },
                     { key: 'exercise', label: t('Egzersiz Ekle', 'Add Exercise') },
-                ] as { key: ActiveSection; label: string }[]).map(({ key, label }) => (
-                    <button
-                        key={key}
-                        type="button"
-                        onClick={() => setActiveSection(key)}
-                        className={`rounded-full px-2 py-2 text-[11px] font-semibold leading-tight transition sm:px-3 sm:text-sm ${activeSection === key ? T.accentBtn : `border ${T.cardBorder} ${T.title} ${T.mutedSurface}`}`}
-                    >
-                        {label}
-                    </button>
-                ))}
+                ] as { key: ActiveSection; label: string }[]).map(({ key, label }) => {
+                    const tabTone = activeSection === key
+                        ? T.accentBtn
+                        : ['border', T.cardBorder, T.title, T.mutedSurface].join(' ');
+
+                    return (
+                        <button
+                            key={key}
+                            type="button"
+                            onClick={() => setActiveSection(key)}
+                            className={`min-w-0 rounded-full px-1.5 py-2 text-[10px] font-semibold leading-tight transition sm:px-3 sm:py-2 sm:text-sm ${tabTone}`}
+                        >
+                            {label}
+                        </button>
+                    );
+                })}
             </div>
 
             {/* Content area — min-h keeps card stable between tabs */}

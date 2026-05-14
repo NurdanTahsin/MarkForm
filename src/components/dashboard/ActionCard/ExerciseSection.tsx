@@ -9,7 +9,7 @@ import {
     toNumber,
 } from '../../../constants/dashboardConstants';
 
-export function ExerciseSection({ targetDate }: { targetDate?: string }) {
+export function ExerciseSection({ targetDate }: Readonly<{ targetDate?: string }>) {
     const T = useActiveTheme();
     const language = useUserStore((s) => s.language);
     const stats = useUserStore((s) => s.stats);
@@ -33,7 +33,7 @@ export function ExerciseSection({ targetDate }: { targetDate?: string }) {
 
     const ensureTodayLog = (updates: Partial<DailyLog>) => {
         if (todayLog) updateLog(today, updates);
-        else addLog({ date: today, categories: [], workoutDone: false, waterIntake: 0, waterEntries: [], ...updates } as DailyLog);
+        else addLog({ date: today, categories: [], workoutDone: false, waterIntake: 0, waterEntries: [], ...updates });
     };
 
     const handleSetExercise = (key: string) => {
@@ -61,17 +61,19 @@ export function ExerciseSection({ targetDate }: { targetDate?: string }) {
                 {EXERCISE_OPTIONS.map((opt) => {
                     const Icon = opt.icon;
                     const isSelected = selectedExercise === opt.key;
+                    const cardTone = isSelected
+                        ? T.accentBtn
+                        : [T.cardBorder, T.dropdownBg, T.title].join(' ');
                     return (
                         <button
                             key={opt.key}
                             type="button"
                             onClick={() => handleSetExercise(opt.key)}
-                            className={`flex flex-col items-center gap-1.5 rounded-2xl border px-3 py-4 text-sm font-semibold transition ${isSelected
-                                ? T.accentBtn
-                                : `${T.cardBorder} ${T.dropdownBg} ${T.title}`}`}
+                            className={`flex flex-col items-center gap-1.5 rounded-2xl border px-3 py-4 text-sm font-semibold transition ${cardTone}`}
                         >
                             <Icon className="h-5 w-5" strokeWidth={1.8} />
-                            <span className="text-xs">{language === 'tr' ? opt.labelTr : opt.labelEn}</span>
+                            <span className="text-xs sm:hidden">{language === 'tr' ? 'Egz +' : 'Ex +'}</span>
+                            <span className="hidden text-xs sm:inline">{language === 'tr' ? opt.labelTr : opt.labelEn}</span>
                         </button>
                     );
                 })}

@@ -58,7 +58,8 @@ export function WaterSection({ targetDate }: Readonly<Props>) {
                             className={`flex flex-col items-center gap-1.5 rounded-2xl border px-3 py-4 text-sm font-semibold transition ${cardTone}`}
                         >
                             <Icon className="h-5 w-5" strokeWidth={1.8} />
-                            <span className="text-xs">{language === 'tr' ? opt.labelTr : opt.labelEn}</span>
+                            <span className="text-xs sm:hidden">{language === 'tr' ? 'Su +' : 'Water +'}</span>
+                            <span className="hidden text-xs sm:inline">{language === 'tr' ? opt.labelTr : opt.labelEn}</span>
                         </button>
                     );
                 })}
@@ -68,7 +69,8 @@ export function WaterSection({ targetDate }: Readonly<Props>) {
                     className={`flex flex-col items-center gap-1.5 rounded-2xl border px-3 py-4 text-sm font-semibold transition ${isManual ? T.accentBtn : [T.cardBorder, T.dropdownBg, T.title].join(' ')}`}
                 >
                     <Plus className="h-5 w-5" strokeWidth={1.8} />
-                    <span className="text-xs">{t('Manuel', 'Manual')}</span>
+                    <span className="text-xs sm:hidden">{t('Su +', 'Water +')}</span>
+                    <span className="hidden text-xs sm:inline">{t('Manuel', 'Manual')}</span>
                 </button>
             </div>
 

@@ -48,23 +48,23 @@ export default function AuthPage({ onBack }: Readonly<AuthPageProps>) {
         <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
             <div className="w-full max-w-md">
                 {/* Back button + language */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center justify-between gap-3 mb-8">
                     <button
                         onClick={onBack}
-                        className="flex items-center gap-2 text-[#64748B] hover:text-[#0EA5E9] transition-colors text-sm font-medium"
+                        className="flex items-center gap-1.5 text-[#64748B] hover:text-[#0EA5E9] transition-colors text-xs font-medium sm:gap-2 sm:text-sm"
                     >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
                         {t('Geri', 'Back')}
                     </button>
-                    <div className="flex rounded-full border border-[#E2E8F0] bg-white p-1 shadow-sm">
+                    <div className="flex rounded-full border border-[#E2E8F0] bg-white p-0.5 shadow-sm sm:p-1">
                         {(['tr', 'en'] as const).map((lang) => (
                             <button
                                 key={lang}
                                 type="button"
                                 onClick={() => setLanguage(lang)}
-                                className={`rounded-full px-3 py-1 text-xs font-semibold transition ${language === lang ? 'bg-[#0EA5E9] text-white' : 'text-[#64748B] hover:text-[#0EA5E9]'}`}
+                                className={`rounded-full px-2.5 py-1 text-[10px] font-semibold transition sm:px-3 sm:text-xs ${language === lang ? 'bg-[#0EA5E9] text-white' : 'text-[#64748B] hover:text-[#0EA5E9]'}`}
                             >
                                 {lang.toUpperCase()}
                             </button>

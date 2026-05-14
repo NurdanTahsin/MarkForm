@@ -35,13 +35,13 @@ export default function LandingPage() {
             <div className="absolute -top-20 -right-20 w-80 h-80 bg-[#0EA5E9]/10 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute -bottom-15 -left-15 w-65 h-65 bg-[#1E40AF]/8 rounded-full blur-3xl pointer-events-none" />
 
-            <div className="absolute top-6 right-6 z-20 flex rounded-full border border-[#E2E8F0] bg-white/90 p-1 shadow-sm">
+            <div className="absolute top-4 right-4 z-20 flex rounded-full border border-[#E2E8F0] bg-white/90 p-0.5 shadow-sm sm:top-6 sm:right-6 sm:p-1">
                 {(['tr', 'en'] as const).map((lang) => (
                     <button
                         key={lang}
                         type="button"
                         onClick={() => setLanguage(lang)}
-                        className={`rounded-full px-3 py-1 text-xs font-semibold transition ${language === lang ? 'bg-[#0EA5E9] text-white' : 'text-[#64748B] hover:text-[#0EA5E9]'}`}
+                        className={`rounded-full px-2.5 py-1 text-[10px] font-semibold transition sm:px-3 sm:text-xs ${language === lang ? 'bg-[#0EA5E9] text-white' : 'text-[#64748B] hover:text-[#0EA5E9]'}`}
                     >
                         {lang.toUpperCase()}
                     </button>
@@ -56,7 +56,7 @@ export default function LandingPage() {
                         <div className="w-14 h-14 rounded-2xl shrink-0 overflow-hidden">
                             <img src="/icon.png" alt="MarkForm Logo" className="w-full h-full object-cover" />
                         </div>
-                        <h1 className="text-[2.75rem] font-black text-[#1E3A8A] tracking-tight leading-none pt-1">
+                        <h1 className="text-[2.2rem] font-black text-[#1E3A8A] tracking-tight leading-none pt-1 sm:text-[2.75rem]">
                             Mark<span className="text-[#0EA5E9]">Form</span>
                         </h1>
                     </div>

@@ -6,7 +6,7 @@ import {
 import { createPortal } from 'react-dom';
 import { useActiveTheme, useUserStore } from '../../../store/useUserStore';
 import {
-    formatNutrition, formatWater, mealLabel, toNumber
+    formatWater, mealLabel, toNumber
 } from '../../../constants/dashboardConstants';
 import type { Past30LogEntry } from './historyHelpers';
 import { formatDayLabel, formatWeekday } from './historyHelpers';
@@ -257,7 +257,6 @@ export function HistoryDayCard({ entry, targetKcal }: Readonly<Props>) {
                                                         <p className={`text-xs font-medium truncate ${T.title}`}>{item.name}</p>
                                                     </div>
                                                     <div className="flex items-center gap-3 shrink-0">
-                                                        <span className={`text-[10px] font-medium ${T.subtitle}`}>{formatNutrition(item)}</span>
                                                         <button type="button" aria-label={t('Sil', 'Delete')}
                                                             onClick={() => {
                                                                 if (!globalThis.confirm(t('Bu besini silmek istediğinize emin misiniz?', 'Are you sure you want to delete this food?'))) return;

@@ -46,6 +46,7 @@ interface UserStoreState {
     updateLog: (date: string, updates: Partial<DailyLog>) => void;
     addFoodToMeal: (date: string, categoryName: string, food: FoodItem) => void;
     removeFoodFromMeal: (date: string, categoryName: string, foodId: string) => void;
+    updateFoodInMeal: (date: string, categoryName: string, foodId: string, updates: Partial<FoodItem>) => void;
     removeCategoryEntirely: (date: string, categoryName: string) => void;
     addFoodToLibrary: (food: FoodItem) => void;
     deleteFromLibrary: (foodId: string) => void;
@@ -90,6 +91,68 @@ function createMealCategory(name: string): MealCategory {
     };
 }
 
+function getLatestWeightEntry(entries: WeightEntry[]): WeightEntry | undefined {
+    return entries.at(-1);
+}
+
+function patchStatsWithWeight(state: UserStoreState, latestEntry?: WeightEntry) {
+    if (!state.stats || !latestEntry) return state.stats;
+    const baseStats = { ...state.stats, currentWeight: latestEntry.weight };
+    return { ...baseStats, TDEE: calculateTDEE(baseStats) };
+}
+
+function updateMealCategories(
+    categories: MealCategory[],
+    categoryName: string,
+    updater: (items: FoodItem[]) => FoodItem[]
+): MealCategory[] {
+    return categories.map((category) => (
+        category.name === categoryName
+            ? { ...category, items: updater(category.items) }
+            : category
+    ));
+}
+
+function findOrAppendMealCategory(categories: MealCategory[], categoryName: string, food: FoodItem): MealCategory[] {
+    const categoryIndex = categories.findIndex((category) => category.name === categoryName);
+    if (categoryIndex === -1) {
+        const newCategory = createMealCategory(categoryName);
+        newCategory.items.push(food);
+        return [...categories, newCategory];
+    }
+
+    return categories.map((category, index) => (
+        index === categoryIndex ? { ...category, items: [...category.items, food] } : category
+    ));
+}
+
+function removeFoodById(categories: MealCategory[], categoryName: string, foodId: string): MealCategory[] {
+    return updateMealCategories(categories, categoryName, (items) => items.filter((item) => item.id !== foodId));
+}
+
+function removeCategoryByName(categories: MealCategory[], categoryName: string): MealCategory[] {
+    return categories.filter((category) => category.name !== categoryName);
+}
+
+function updateFoodById(
+    categories: MealCategory[],
+    categoryName: string,
+    foodId: string,
+    updates: Partial<FoodItem>
+): MealCategory[] {
+    return updateMealCategories(categories, categoryName, (items) => (
+        items.map((item) => (item.id === foodId ? { ...item, ...updates, id: item.id } : item))
+    ));
+}
+
+function removeWaterEntryById(entries: WaterEntry[] | undefined, entryId: string): WaterEntry[] {
+    return (entries ?? []).filter((entry) => entry.id !== entryId);
+}
+
+function updateWaterEntryById(entries: WaterEntry[] | undefined, entryId: string, amount: number): WaterEntry[] {
+    return (entries ?? []).map((entry) => (entry.id === entryId ? { ...entry, amount } : entry));
+}
+
 export const useUserStore = create<UserStoreState>()(
     persist(
         (set) => ({
@@ -111,26 +174,17 @@ export const useUserStore = create<UserStoreState>()(
                     const entryDate = date || todayString();
                     const newEntry: WeightEntry = { id: `weight-${Date.now()}`, date: entryDate, weight };
                     const nextLog = [...state.weightLog, newEntry].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-                    const latestEntry = nextLog[nextLog.length - 1];
-                    const baseStats = state.stats ? { ...state.stats, currentWeight: latestEntry.weight } : null;
-                    const patchedStats = baseStats ? { ...baseStats, TDEE: calculateTDEE(baseStats) } : null;
-                    return { weightLog: nextLog, stats: patchedStats };
+                    return { weightLog: nextLog, stats: patchStatsWithWeight(state, getLatestWeightEntry(nextLog)) };
                 }),
             updateWeightEntry: (id, weight, date) =>
                 set((state) => {
                     const nextLog = state.weightLog.map(e => e.id === id ? { ...e, weight, date } : e).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-                    const latestEntry = nextLog[nextLog.length - 1];
-                    const baseStats = state.stats && latestEntry ? { ...state.stats, currentWeight: latestEntry.weight } : state.stats;
-                    const patchedStats = baseStats ? { ...baseStats, TDEE: calculateTDEE(baseStats) } : null;
-                    return { weightLog: nextLog, stats: patchedStats };
+                    return { weightLog: nextLog, stats: patchStatsWithWeight(state, getLatestWeightEntry(nextLog)) };
                 }),
             removeWeightEntry: (id) =>
                 set((state) => {
                     const nextLog = state.weightLog.filter(e => e.id !== id);
-                    const latestEntry = nextLog[nextLog.length - 1];
-                    const baseStats = state.stats && latestEntry ? { ...state.stats, currentWeight: latestEntry.weight } : state.stats;
-                    const patchedStats = baseStats ? { ...baseStats, TDEE: calculateTDEE(baseStats) } : null;
-                    return { weightLog: nextLog, stats: patchedStats };
+                    return { weightLog: nextLog, stats: patchStatsWithWeight(state, getLatestWeightEntry(nextLog)) };
                 }),
             addLog: (log) => set((state) => ({ logs: [...state.logs, log] })),
             updateLog: (date, updates) =>
@@ -156,22 +210,7 @@ export const useUserStore = create<UserStoreState>()(
 
                     const nextLogs = [...state.logs];
                     const activeLog = ensureLogShape(nextLogs[existingIndex]);
-                    const categoryIndex = activeLog.categories.findIndex(
-                        (category) => category.name === categoryName
-                    );
-
-                    let nextCategories: MealCategory[];
-                    if (categoryIndex === -1) {
-                        const newCategory = createMealCategory(categoryName);
-                        newCategory.items.push(food);
-                        nextCategories = [...activeLog.categories, newCategory];
-                    } else {
-                        nextCategories = activeLog.categories.map((category, index) =>
-                            index === categoryIndex
-                                ? { ...category, items: [...category.items, food] }
-                                : category
-                        );
-                    }
+                    const nextCategories = findOrAppendMealCategory(activeLog.categories, categoryName, food);
 
                     nextLogs[existingIndex] = { ...activeLog, categories: nextCategories };
                     return { logs: nextLogs };
@@ -183,11 +222,18 @@ export const useUserStore = create<UserStoreState>()(
                         const shapedLog = ensureLogShape(log);
                         return {
                             ...shapedLog,
-                            categories: shapedLog.categories.map((category) =>
-                                category.name === categoryName
-                                    ? { ...category, items: category.items.filter((item) => item.id !== foodId) }
-                                    : category
-                            ),
+                            categories: removeFoodById(shapedLog.categories, categoryName, foodId),
+                        };
+                    }),
+                })),
+            updateFoodInMeal: (date, categoryName, foodId, updates) =>
+                set((state) => ({
+                    logs: state.logs.map((log) => {
+                        if (log.date !== date) return log;
+                        const shapedLog = ensureLogShape(log);
+                        return {
+                            ...shapedLog,
+                            categories: updateFoodById(shapedLog.categories, categoryName, foodId, updates),
                         };
                     }),
                 })),
@@ -198,9 +244,7 @@ export const useUserStore = create<UserStoreState>()(
                         const shapedLog = ensureLogShape(log);
                         return {
                             ...shapedLog,
-                            categories: shapedLog.categories.filter(
-                                (category) => category.name !== categoryName
-                            ),
+                            categories: removeCategoryByName(shapedLog.categories, categoryName),
                         };
                     }),
                 })),
@@ -247,7 +291,7 @@ export const useUserStore = create<UserStoreState>()(
                     logs: state.logs.map((log) => {
                         if (log.date !== date) return log;
                         const shaped = ensureLogShape(log);
-                        const entries = shaped.waterEntries!.filter((e) => e.id !== entryId);
+                        const entries = removeWaterEntryById(shaped.waterEntries, entryId);
                         return { ...shaped, waterEntries: entries, waterIntake: sumWaterEntries(entries) };
                     }),
                 })),
@@ -256,9 +300,7 @@ export const useUserStore = create<UserStoreState>()(
                     logs: state.logs.map((log) => {
                         if (log.date !== date) return log;
                         const shaped = ensureLogShape(log);
-                        const entries = shaped.waterEntries!.map((e) =>
-                            e.id === entryId ? { ...e, amount } : e
-                        );
+                        const entries = updateWaterEntryById(shaped.waterEntries, entryId, amount);
                         return { ...shaped, waterEntries: entries, waterIntake: sumWaterEntries(entries) };
                     }),
                 })),
@@ -272,7 +314,7 @@ export const useUserStore = create<UserStoreState>()(
             merge: (persistedState, currentState) => {
                 const persisted = persistedState as Partial<UserStoreState> | undefined;
                 if (!persisted) return currentState;
-                const merged = { ...currentState, ...persisted } as UserStoreState;
+                const merged = { ...currentState, ...persisted };
                 if (!Array.isArray(persisted.personalFoods) || persisted.personalFoods.length === 0) {
                     merged.personalFoods = currentState.personalFoods;
                 }

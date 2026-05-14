@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ChevronDown, Droplets, Flame, Pencil, Trash2, X } from 'lucide-react';
 import { useActiveTheme, useUserStore } from '../../../store/useUserStore';
 import { useToastStore } from '../../../store/useToastStore';
-import { formatNutrition, formatWater, mealLabel, toNumber } from '../../../constants/dashboardConstants';
+import { formatWater, mealLabel, toNumber } from '../../../constants/dashboardConstants';
 import type { Past30LogEntry } from './historyHelpers';
 import { formatDayLabel, formatWeekday } from './historyHelpers';
 
@@ -13,7 +13,7 @@ interface Props {
     targetFat: number;
 }
 
-export function DayCard({ entry, targetProtein, targetCarb, targetFat }: Props) {
+export function DayCard({ entry, targetProtein, targetCarb, targetFat }: Readonly<Props>) {
     const T = useActiveTheme();
     const language = useUserStore((s) => s.language);
     const removeWaterEntry = useUserStore((s) => s.removeWaterEntry);
@@ -28,6 +28,9 @@ export function DayCard({ entry, targetProtein, targetCarb, targetFat }: Props) 
     const [editingWaterKey, setEditingWaterKey] = useState<string | null>(null);
     const [editingWaterValue, setEditingWaterValue] = useState('');
     const keyPrefix = `${log.date}:`;
+    const summaryTone = hasData
+        ? [T.accentSoft, T.accent, T.cardBorder].join(' ')
+        : [T.mutedSurface, T.subtitle, T.cardBorder].join(' ');
 
     return (
         <article className={`rounded-4xl border p-5 shadow-sm ${T.cardBorder} ${T.cardBg}`}>
@@ -41,7 +44,7 @@ export function DayCard({ entry, targetProtein, targetCarb, targetFat }: Props) 
                     <p className={`mt-1 text-sm ${T.subtitle}`}>{formatWeekday(dateObj, language)}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <span className={`rounded-full border px-4 py-2 text-sm font-semibold ${hasData ? `${T.accentSoft} ${T.accent} ${T.cardBorder}` : `${T.mutedSurface} ${T.subtitle} ${T.cardBorder}`}`}>
+                    <span className={`rounded-full border px-4 py-2 text-sm font-semibold ${summaryTone}`}>
                         {hasData ? `${Math.round(totals.kcal)} kcal` : t('Veri yok', 'No data')}
                     </span>
                     <ChevronDown className={`h-5 w-5 transition ${T.subtitle} ${isExpanded ? 'rotate-180' : ''}`} />
@@ -122,7 +125,6 @@ export function DayCard({ entry, targetProtein, targetCarb, targetFat }: Props) 
                                             <li key={item.id} className={`flex items-center justify-between gap-3 px-4 py-3 ${T.dropdownBg}`}>
                                                 <div className="min-w-0">
                                                     <p className={`truncate text-sm font-semibold ${T.title}`}>{item.name}</p>
-                                                    <p className={`mt-0.5 text-xs ${T.subtitle}`}>{formatNutrition(item)}</p>
                                                 </div>
                                                 <button
                                                     type="button"
