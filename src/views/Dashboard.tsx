@@ -42,11 +42,11 @@ export default function Dashboard() {
 
                 {/* Header */}
                 <header className={`relative z-20 rounded-3xl border px-5 py-4 sm:px-6 sm:py-5 ${T.cardBg} ${T.cardBorder} shadow-sm`}>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <h1 className={`text-2xl font-bold sm:text-3xl ${T.title}`}>MarkForm</h1>
-                        <div className="relative flex items-center gap-2">
+                        <div className="relative flex flex-wrap items-center gap-2 sm:flex-nowrap">
                             {/* Dil */}
-                            <div className={`flex rounded-full border p-1 mr-2 ${T.cardBorder} ${T.dropdownBg}`}>
+                            <div className={`flex rounded-full border p-1 sm:mr-2 ${T.cardBorder} ${T.dropdownBg}`}>
                                 {(['tr', 'en'] as const).map((lang) => {
                                     const langTone = language === lang ? T.accentBtn : T.title;
                                     return (

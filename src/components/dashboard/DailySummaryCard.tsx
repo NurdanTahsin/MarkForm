@@ -53,10 +53,10 @@ export function DailySummaryCard() {
               Mobile: 2-col grid — left=ring+macros+kalan, right=su(top)+egzersiz(bottom)
               PC (lg+):  stacked — top=ring+macros+kalan full-width, bottom=su|egzersiz 2-col
             */}
-            <div className="grid grid-cols-[3fr_2fr] lg:block">
+            <div className="grid grid-cols-1 sm:grid-cols-[3fr_2fr] lg:block">
 
                 {/* ── LEFT (mobile) / TOP (PC): ring + macros + kalan kalori ── */}
-                <div className={`p-3 border-r lg:border-r-0 lg:p-4 ${T.cardBorder}`}>
+                <div className={`p-3 border-b sm:border-b-0 sm:border-r lg:border-r-0 lg:p-4 ${T.cardBorder}`}>
                     <p className={`text-xs font-semibold uppercase tracking-wide ${T.subtitle}`}>{t('Günlük Özet', 'Daily Summary')}</p>
 
                     {/* Mobile: ring stacked above macros. PC: ring left, macros right */}

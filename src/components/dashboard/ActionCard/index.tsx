@@ -15,7 +15,7 @@ export function ActionCard() {
     return (
         <section className={`rounded-3xl border p-3 sm:p-4 ${T.cardBg} ${T.cardBorder} shadow-sm`}>
             {/* Section tabs */}
-            <div className="grid grid-cols-3 gap-2 mb-3">
+            <div className="grid grid-cols-2 gap-2 mb-3 sm:grid-cols-3">
                 {([
                     { key: 'food', label: t('Yemek Ekle', 'Add Food') },
                     { key: 'water', label: t('Su Ekle', 'Add Water') },
@@ -25,7 +25,7 @@ export function ActionCard() {
                         key={key}
                         type="button"
                         onClick={() => setActiveSection(key)}
-                        className={`rounded-full px-3 py-2 text-sm font-semibold transition ${activeSection === key ? T.accentBtn : `border ${T.cardBorder} ${T.title} ${T.mutedSurface}`}`}
+                        className={`rounded-full px-2 py-2 text-[11px] font-semibold leading-tight transition sm:px-3 sm:text-sm ${activeSection === key ? T.accentBtn : `border ${T.cardBorder} ${T.title} ${T.mutedSurface}`}`}
                     >
                         {label}
                     </button>

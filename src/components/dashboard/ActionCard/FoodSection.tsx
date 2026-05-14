@@ -179,7 +179,7 @@ export function FoodSection({ targetDate }: Readonly<Props>) {
     return (
         <div className="space-y-4 pb-3 animate-in">
             {/* 1. Üst Kısım: Sekmeler ve Besin Listesi Butonu */}
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
                 <div className="relative flex-1">
                     <select
                         value={addMode}
@@ -203,7 +203,7 @@ export function FoodSection({ targetDate }: Readonly<Props>) {
                 <button
                     type="button"
                     onClick={() => setShowLibrary(true)}
-                    className={`shrink-0 flex items-center gap-1.5 rounded-xl px-4 py-3 text-sm font-semibold ${T.accent} ${T.accentSoft} border ${T.cardBorder} transition hover:opacity-80`}
+                    className={`w-full sm:w-auto shrink-0 flex items-center justify-center gap-1.5 rounded-xl px-4 py-3 text-sm font-semibold ${T.accent} ${T.accentSoft} border ${T.cardBorder} transition hover:opacity-80`}
                 >
                     <BookOpen className="h-4 w-4" />
                     {t('Besin Listesi', 'Food Library')}
@@ -211,7 +211,7 @@ export function FoodSection({ targetDate }: Readonly<Props>) {
             </div>
 
             {/* 2. Öğün Seçici */}
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {MEAL_META.map((meal) => {
                     const isActive = meal.key === selectedMeal;
                     const Icon = meal.icon;
@@ -242,7 +242,7 @@ export function FoodSection({ targetDate }: Readonly<Props>) {
                         <span className="truncate">{selectedFood ? selectedFood.name : t('Besin Seç...', 'Select Food...')}</span>
                         <ChevronRight className="ml-1 h-4 w-4 shrink-0" strokeWidth={2} />
                     </button>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col gap-2 sm:flex-row">
                         <input
                             type="number"
                             value={amountInput}
@@ -257,7 +257,7 @@ export function FoodSection({ targetDate }: Readonly<Props>) {
                             type="button"
                             onClick={handleAddListOrBarcode}
                             disabled={!preview}
-                            className={`shrink-0 rounded-xl px-8 py-3.5 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed ${T.accentSecondary}`}
+                            className={`w-full sm:w-auto shrink-0 rounded-xl px-6 py-3.5 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed sm:px-8 ${T.accentSecondary}`}
                         >
                             {t('Ekle', 'Add')}
                         </button>
@@ -275,7 +275,7 @@ export function FoodSection({ targetDate }: Readonly<Props>) {
                         placeholder={t('Yemek Adı', 'Food Name')}
                         className={T.inputCls}
                     />
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                         <input type="number" value={manualKcal} onChange={e => setManualKcal(e.target.value)} placeholder="Kcal" className={`${T.inputCls} px-2`} />
                         <input type="number" value={manualProtein} onChange={e => setManualProtein(e.target.value)} placeholder="Pro(g)" className={`${T.inputCls} px-2`} />
                         <input type="number" value={manualCarb} onChange={e => setManualCarb(e.target.value)} placeholder="Karb(g)" className={`${T.inputCls} px-2`} />
@@ -299,7 +299,7 @@ export function FoodSection({ targetDate }: Readonly<Props>) {
                         <Sparkles className={`inline-block h-3 w-3 mr-1 ${T.accent}`} />
                         {t('Ne yediğinizi yazın, biz anlayalım. (Örn: "100 gram tavuk" veya "2 elma")', 'Type what you ate, we will understand. (e.g., "100 grams chicken" or "2 apples")')}
                     </p>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col gap-2 sm:flex-row">
                         <input
                             type="text"
                             value={smartText}
@@ -312,7 +312,7 @@ export function FoodSection({ targetDate }: Readonly<Props>) {
                             type="button"
                             onClick={handleAddSmart}
                             disabled={!smartText.trim()}
-                            className={`shrink-0 rounded-xl px-8 py-3.5 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed ${T.accentSecondary}`}
+                            className={`w-full sm:w-auto shrink-0 rounded-xl px-6 py-3.5 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed sm:px-8 ${T.accentSecondary}`}
                         >
                             {t('Ekle', 'Add')}
                         </button>
@@ -337,7 +337,7 @@ export function FoodSection({ targetDate }: Readonly<Props>) {
                                 <span className="truncate">{selectedFood.name}</span>
                                 <button type="button" onClick={() => setSelectedFood(null)} className={`text-xs ${T.accent}`}>{t('İptal', 'Cancel')}</button>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex flex-col gap-2 sm:flex-row">
                                 <input
                                     type="number"
                                     value={amountInput}
@@ -351,7 +351,7 @@ export function FoodSection({ targetDate }: Readonly<Props>) {
                                     type="button"
                                     onClick={handleAddListOrBarcode}
                                     disabled={!preview}
-                                    className={`shrink-0 rounded-xl px-8 py-3.5 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed ${T.accentSecondary}`}
+                                    className={`w-full sm:w-auto shrink-0 rounded-xl px-6 py-3.5 text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed sm:px-8 ${T.accentSecondary}`}
                                 >
                                     {t('Ekle', 'Add')}
                                 </button>

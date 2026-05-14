@@ -57,7 +57,7 @@ export function ExerciseSection({ targetDate }: { targetDate?: string }) {
 
     return (
         <div className="space-y-4 pb-3">
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {EXERCISE_OPTIONS.map((opt) => {
                     const Icon = opt.icon;
                     const isSelected = selectedExercise === opt.key;
@@ -78,7 +78,7 @@ export function ExerciseSection({ targetDate }: { targetDate?: string }) {
             </div>
 
             {selectedExercise === 'manual' ? (
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     <input
                         type="text"
                         value={exManualName}

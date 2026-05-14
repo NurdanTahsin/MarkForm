@@ -43,7 +43,7 @@ export function WaterSection({ targetDate }: Readonly<Props>) {
 
     return (
         <div className="space-y-4 pb-3">
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {WATER_OPTIONS.map((opt) => {
                     const Icon = opt.icon;
                     const isSelected = selectedWaterPreset === opt.value && !isManual;
